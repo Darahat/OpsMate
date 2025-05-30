@@ -89,8 +89,10 @@ lib/
 
 ### 📋 Prerequisites
 
-- Flutter SDK
-- Dart >= 3.0
+- Flutter SDK: 3.13.x (via FVM)
+- Dart: 3.1.x
+- Gradle: 8.1
+- Java: 17
 - Git
 - Optional: VS Code / Android Studio
 
