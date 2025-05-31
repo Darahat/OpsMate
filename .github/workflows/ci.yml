@@ -1,0 +1,70 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches: [main, tes] # Triggers on pushes to these branches
+  pull_request:
+    branches: [main, tes] # Triggers on PRs to these branches
+
+jobs:
+  test:
+    name: Run Flutter Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # Checkout code
+
+      - uses: subosito/flutter-action@v2 # Setup Flutter
+        with:
+          channel: "stable"
+          flutter-version: "3.29.3" # Match your Flutter version
+
+      - run: flutter pub get # Install dependencies
+
+      - run: flutter test # Run unit/widget tests
+
+      - run: flutter analyze # Static code analysis
+
+  build-android:
+    name: Build Android APK
+    needs: test # Depends on test job
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - run: flutter pub get
+
+      - run: flutter build apk --release # Build Android APK
+
+      - uses: actions/upload-artifact@v3 # Upload APK as artifact
+        with:
+          name: opsmate-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-ios:
+    name: Build iOS (Simulator)
+    needs: test
+    runs-on: macos-latest # iOS builds require macOS
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - run: flutter pub get
+
+      - run: flutter build ios --simulator --no-codesign # Build for iOS simulator
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: opsmate-ios
+          path: build/ios/Release-iphonesimulator/
+  github-release:
+    name: Create GitHub Release
+    uses: softprops/action-gh-release@v1
+    with:
+      files: build/app/outputs/flutter-apk/app-release.apk
