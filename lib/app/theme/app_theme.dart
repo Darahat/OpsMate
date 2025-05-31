@@ -2,13 +2,26 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 final ThemeData lightTheme = ThemeData(
+  brightness: Brightness.light,
+  useMaterial3: true,
+  // Primary colors
   primaryColor: AppColor.primary,
   scaffoldBackgroundColor: AppColor.background,
+
+  // App Bar Theme
   appBarTheme: const AppBarTheme(
     backgroundColor: AppColor.primary,
     foregroundColor: Colors.white,
     elevation: 0,
+    centerTitle: true,
+    titleTextStyle: TextStyle(
+      color: AppColor.buttonText,
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+    ),
   ),
+
+  // Color scheme for Material 3
   colorScheme: ColorScheme.light(
     primary: AppColor.primary,
     onPrimary: Colors.white,
@@ -19,21 +32,91 @@ final ThemeData lightTheme = ThemeData(
     error: AppColor.error,
     onError: AppColor.buttonText,
   ),
-  textTheme: TextTheme(
-    bodyLarge: TextStyle(color: AppColor.textPrimary),
-    bodyMedium: TextStyle(color: AppColor.textSecondary),
+  //Card Theme
+  cardTheme: CardThemeData(
+    color: AppColor.surface,
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
-  brightness: Brightness.light,
-  useMaterial3: true,
+  // Elevated button theme
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColor.accent,
+      foregroundColor: AppColor.buttonText,
+      elevation: 2,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+  ),
+  // Text theme
+  textTheme: TextTheme(
+    headlineLarge: TextStyle(
+      color: AppColor.textPrimary,
+      fontSize: 32,
+      fontWeight: FontWeight.bold,
+    ),
+    headlineMedium: TextStyle(
+      color: AppColor.textPrimary,
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+    ),
+    titleLarge: TextStyle(
+      color: AppColor.textPrimary,
+      fontSize: 22,
+      fontWeight: FontWeight.w600,
+    ),
+    titleMedium: TextStyle(
+      color: AppColor.textPrimary,
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+    ),
+    bodyLarge: TextStyle(color: AppColor.textPrimary, fontSize: 16),
+    bodyMedium: TextStyle(color: AppColor.textSecondary, fontSize: 14),
+    labelLarge: TextStyle(
+      color: AppColor.buttonText,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+    ),
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: AppColor.surface,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: AppColor.textSecondary),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: AppColor.textSecondary, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: AppColor.accent, width: 2),
+    ),
+  ),
 );
 final ThemeData darkTheme = ThemeData(
+  useMaterial3: true,
+  brightness: Brightness.dark,
+
+  // Primary colors
   primaryColor: AppColor.primaryDark,
   scaffoldBackgroundColor: AppColor.darkBackground,
+
+  // App Bar Theme
   appBarTheme: const AppBarTheme(
     backgroundColor: AppColor.darkAppBar,
-    foregroundColor: Colors.white,
+    foregroundColor: AppColor.darkTextPrimary,
     elevation: 0,
+    centerTitle: true,
+    titleTextStyle: TextStyle(
+      color: AppColor.darkTextPrimary,
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+    ),
   ),
+
+  // Color scheme for Material 3
   colorScheme: ColorScheme.dark(
     primary: AppColor.accent,
     secondary: AppColor.accentLight,
@@ -42,9 +125,66 @@ final ThemeData darkTheme = ThemeData(
     onSecondary: Colors.black,
     onSurface: AppColor.darkTextPrimary,
   ),
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: AppColor.darkTextPrimary),
-    bodyMedium: TextStyle(color: AppColor.darkTextSecondary),
+
+  cardTheme: CardThemeData(
+    color: AppColor.darkSurface,
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
-  useMaterial3: true,
+  // Elevated button theme
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColor.accent,
+      foregroundColor: AppColor.buttonText,
+      elevation: 2,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+  ),
+  // Text theme
+  textTheme: TextTheme(
+    headlineLarge: TextStyle(
+      color: AppColor.darkTextPrimary,
+      fontSize: 32,
+      fontWeight: FontWeight.bold,
+    ),
+    headlineMedium: TextStyle(
+      color: AppColor.darkTextPrimary,
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+    ),
+    titleLarge: TextStyle(
+      color: AppColor.darkTextPrimary,
+      fontSize: 22,
+      fontWeight: FontWeight.w600,
+    ),
+    titleMedium: TextStyle(
+      color: AppColor.darkTextPrimary,
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+    ),
+    bodyLarge: TextStyle(color: AppColor.darkTextPrimary, fontSize: 16),
+    bodyMedium: TextStyle(color: AppColor.darkTextSecondary, fontSize: 14),
+    labelLarge: TextStyle(
+      color: AppColor.buttonText,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+    ),
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: AppColor.darkSurface,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: AppColor.darkTextSecondary),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: AppColor.darkTextSecondary, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: AppColor.accent, width: 2),
+    ),
+  ),
 );
