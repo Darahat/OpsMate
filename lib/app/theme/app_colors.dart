@@ -22,7 +22,19 @@ class AppColor {
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkAppBar = Color(0xFF1A1A1A);
   static const Color darkTextPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextSecondary = Color(
-    0xFFB0B0B0,
-  ); // For dark mode buttons
+  static const Color darkTextSecondary = Color(0xFFB0B0B0);
+
+  // ==================== SEMANTIC COLORS ====================
+  /// Success state color
+  static const Color success = Color(0xFF4CAF50);
+
+  /// Error state color
+  static const Color error = Color(0xFFE53E3E);
+
+  /// Warning state color
+  static const Color warning = Color(0xFFED8936);
+
+  /// Info state color
+  static const Color info = Color(0xFF3182CE);
+  // For dark mode buttons
 }

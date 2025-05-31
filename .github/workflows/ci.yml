@@ -2,10 +2,13 @@ name: Flutter CI/CD
 
 on:
   push:
+    tags:
+      - 'v*
     branches: [main, tes] # Triggers on pushes to these branches
   pull_request:
     branches: [main, tes] # Triggers on PRs to these branches
-
+ 
+    
 jobs:
   test:
     name: Run Flutter Tests

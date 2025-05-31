@@ -11,16 +11,19 @@ final ThemeData lightTheme = ThemeData(
   ),
   colorScheme: ColorScheme.light(
     primary: AppColor.primary,
-    secondary: AppColor.accent,
-    surface: AppColor.background,
     onPrimary: Colors.white,
+    secondary: AppColor.accent,
     onSecondary: Colors.white,
+    surface: AppColor.background,
     onSurface: AppColor.textPrimary,
+    error: AppColor.error,
+    onError: AppColor.buttonText,
   ),
   textTheme: TextTheme(
     bodyLarge: TextStyle(color: AppColor.textPrimary),
     bodyMedium: TextStyle(color: AppColor.textSecondary),
   ),
+  brightness: Brightness.light,
   useMaterial3: true,
 );
 final ThemeData darkTheme = ThemeData(
