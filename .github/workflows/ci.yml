@@ -70,7 +70,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: opsmate-ios
-          path: build/ios/Release-iphonesimulator/Runner.app
+          path: build/ios/Release-iphonesimulator
 
       # Add GitHub Release as a STEP (not a job)
       - name: Create GitHub Release
