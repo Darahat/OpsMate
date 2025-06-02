@@ -46,3 +46,22 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+# Environment files
+
+.env
+.env.local
+.env.development
+.env.production
+
+# Generated files
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
+
+# API Keys (if stored in files)
+lib/core/config/api_keys.dart
+
+# Build outputs
+/build/
+/android/app/build/
+/ios/build/

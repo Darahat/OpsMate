@@ -15,4 +15,7 @@ final getIt =
   asExtension:
       false, // Another configuration for Injectable. When `false`, the generated initialization function (`$initGetIt`) will be a standalone function. If set to `true`, it would be generated as an extension method on GetIt.
 )
-void configureDependencies() => $initGetIt(getIt);
+Future<void> configureDependencies() async {
+  await $initGetIt(getIt);
+  // Any manual registrations can go here
+}

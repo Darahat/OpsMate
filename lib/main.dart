@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:opsmate/app/theme/app_theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'injection_container.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  // await configureDependencies();
+  WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   runApp(const MyApp());
 }
 

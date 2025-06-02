@@ -1,0 +1,38 @@
+# Flutter Launcher Icons configuration
+# Run: flutter pub run flutter_launcher_icons:main
+flutter_launcher_icons:
+# Generate icons for android
+android: true
+
+# Generate icons for iOS
+ios: true
+# Path to your source icon (shoud be 1024x1024 PNG with transparent background)
+image_path: "assets/icon/icon.png"
+
+# Minimum android SDK version (affects icon format)
+min_sdk_android: 24
+
+# Remove old generated icons before creating new ones
+remove_alpha_ios: true
+
+# Android specific settings
+android_options:
+  #Generate adaptive icons (Android 8.0+)
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_forground: "assets/icon/icon_foreground.png"
+# iOS specific settings
+ios_options:
+  # Generate icons for diffrent iOS versions
+  generate_for_ios:true
+# Alternative: Separate icons for different platforms
+# flutter_launcher_icons:
+#   android: "launcher_icon_android"
+#   ios: "launcher_icon_ios"
+#   image_path_android: "assets/icon/android_icon.png"
+#   image_path_ios: "assets/icon/ios_icon.png"
+
+# How to use:
+# 1. Add flutter_launcher_icons to dev_dependencies in pubspec.yaml
+# 2. Place your 1024x1024 icon.png in assets/icon/
+# 3. Run: flutter pub get
+# 4. Run: flutter pub run flutter_launcher_icons:main
