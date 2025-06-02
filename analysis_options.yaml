@@ -8,7 +8,32 @@
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
+#configure the analyzer
+analyzer:
+  # Exclude generated files from analysis
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+    - "build/**"
+    - "android/**"
+    - "ios/**"
 
+# Enable strong mode for better type safety
+strong-mode:
+  implicit-casts: false # prevents unsafe type casts
+  implicit-dynamic: false # Forces explicit dynamic types
+
+# Set analysis errors as warnings or errors
+errors:
+  # Treat missing return types as errors
+  always_declare_return_types: error
+  # Treat unused imports as Warnings
+  unused_import: warning
+  # Treat missing required parameters as errors
+  missing_required_param: error
+
+# Additional linting rules for better code quality
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`
@@ -21,8 +46,29 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    - prefer_single_quotes # Uncomment to enable the `prefer_single_quotes` rule
+    - prefer_const_constructors
+    - prefer_const_literals_to_create_immutables
+    - sort_constructors_first # Put constructors at the top
+    - sort_unnamed_constructors_first
 
+    #import rules
+    - always_use_package_imports # Use package: imports instead of relative
+    - avoid_relative_lib_imports # Don't use ../lib/ imports
+
+    # Code quality rules
+    - avoid_print # Uncomment to disable the `avoid_print` rule
+    - avoid_unnecessary_containers # Dont wrap widgets unnecessarily
+    - prefer_final_locals # Use final for Local variables when possible
+    - unnecessary_null_checks # Remove redundant null checks
+    - avoid_redundant_argument_values # Dont't pass default values explicityly
+
+    #Performance rules
+    - avoid_function_literals_in_foreach_calls
+    - prefer_for_elements_to_map_fromIterable
+
+    # Documentation rules
+    - public_member_api_docs #Document public APIs
+    - package_api_docs # Document package APIs
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

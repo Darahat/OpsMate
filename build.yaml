@@ -1,0 +1,37 @@
+targets:
+  $default:
+    builders:
+      #For dependency injection code generation
+      injectable_generator:injectable_builder:
+        enabled: true
+        options:
+          auto_register:true
+
+      #For API client code generation
+      retrofit_generator:retrofit:
+        enabled:true
+        options:
+          generate_to_string:true
+
+      # For JSON serialization
+      json_serializable:json_serializable:
+        enabled: true
+        options:
+          explicit_to_json:true
+          include_if_null:false
+        
+      # For Hive database adapters
+      hive_generator:hive_generator:
+        enabled: true
+        options:
+          generate_to_string: true
+
+#configure which files to generate code for
+sources:
+  -"lib/**"
+  -"test/**"
+
+#Exclude generated files from being processed again
+exclude:
+  -"**/*.g.dart"
+  "**/*.freezed.dart"
