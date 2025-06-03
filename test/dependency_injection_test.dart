@@ -7,6 +7,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
+    /// 🛠️ Important: Initialize before use
+    AppLogger.init();
     configureDependencies();
   });
 
