@@ -88,7 +88,8 @@ final ThemeData lightTheme = ThemeData(
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: AppColor.textSecondary, width: 1),
+
+      borderSide: const BorderSide(color: AppColor.textSecondary),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
@@ -182,7 +183,7 @@ final ThemeData darkTheme = ThemeData(
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: AppColor.darkTextSecondary, width: 1),
+      borderSide: const BorderSide(color: AppColor.darkTextSecondary),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
