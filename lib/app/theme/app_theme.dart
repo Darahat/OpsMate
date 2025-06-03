@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import 'package:opsmate/app/theme/app_colors.dart';
 
+/// The light theme configuration used throughout the application.
+///
+/// This theme includes color and style definitions optimized for light mode UI.
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   useMaterial3: true,
@@ -22,15 +25,13 @@ final ThemeData lightTheme = ThemeData(
   ),
 
   // Color scheme for Material 3
-  colorScheme: ColorScheme.light(
+  colorScheme: const ColorScheme.light(
     primary: AppColor.primary,
-    onPrimary: Colors.white,
     secondary: AppColor.accent,
     onSecondary: Colors.white,
     surface: AppColor.background,
     onSurface: AppColor.textPrimary,
     error: AppColor.error,
-    onError: AppColor.buttonText,
   ),
   //Card Theme
   cardTheme: CardThemeData(
@@ -49,7 +50,7 @@ final ThemeData lightTheme = ThemeData(
     ),
   ),
   // Text theme
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     headlineLarge: TextStyle(
       color: AppColor.textPrimary,
       fontSize: 32,
@@ -87,7 +88,7 @@ final ThemeData lightTheme = ThemeData(
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: AppColor.textSecondary, width: 1),
+      borderSide: const BorderSide(color: AppColor.textSecondary, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
@@ -95,6 +96,10 @@ final ThemeData lightTheme = ThemeData(
     ),
   ),
 );
+
+/// The dark theme configuration used throughout the application.
+///
+/// This theme includes color and style definitions optimized for dark mode UI.
 final ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
@@ -117,13 +122,10 @@ final ThemeData darkTheme = ThemeData(
   ),
 
   // Color scheme for Material 3
-  colorScheme: ColorScheme.dark(
+  colorScheme: const ColorScheme.dark(
     primary: AppColor.accent,
     secondary: AppColor.accentLight,
     surface: AppColor.darkSurface,
-    onPrimary: Colors.white,
-    onSecondary: Colors.black,
-    onSurface: AppColor.darkTextPrimary,
   ),
 
   cardTheme: CardThemeData(
@@ -142,7 +144,7 @@ final ThemeData darkTheme = ThemeData(
     ),
   ),
   // Text theme
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     headlineLarge: TextStyle(
       color: AppColor.darkTextPrimary,
       fontSize: 32,
@@ -180,7 +182,7 @@ final ThemeData darkTheme = ThemeData(
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: AppColor.darkTextSecondary, width: 1),
+      borderSide: const BorderSide(color: AppColor.darkTextSecondary, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),

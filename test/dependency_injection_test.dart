@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opsmate/injection_container.dart';
 import 'package:opsmate/core/utils/test_service.dart';
+import 'package:opsmate/core/utils/logger.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -10,11 +11,12 @@ void main() {
   });
 
   test('TestService should be registered', () {
-    print('Test is running'); // Debug output
+    AppLogger.info('Test is running');
     final testService = getIt<TestService>();
-    print('Retrieved service: $testService'); // Debug output
+    AppLogger.info('Retrieved service: $testService');
+
     final message = testService.getTestMessage();
-    print('Service returned: $message');
+    AppLogger.info('Service returned: $message');
     expect(testService, isA<TestServiceImpl>());
   });
 
