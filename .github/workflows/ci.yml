@@ -46,13 +46,11 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
       # Create  GitHub Release as a STEP (not a job)
       - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: build/app/outputs/flutter-apk/app-release.apk
-          token: ${{ secrets.GIT_ACCESSTOKEN_FOR_BUILD_APK_IOS_USINGGITWORKFLOW }} # Use the custom token
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: build/app/outputs/flutter-apk/app-release.apk
+          token: ${{ secrets.GIT_ACCESSTOKEN_FOR_BUILD_APK_IOS_USINGGITWORKFLOW }}
 
   build-ios:
     name: Build iOS (Simulator)
