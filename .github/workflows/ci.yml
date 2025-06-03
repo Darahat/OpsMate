@@ -1,81 +1,91 @@
+# Name of the GitHub Actions workflow
 name: Flutter CI/CD
+
+permissions:
+  contents: write # Required to allow GitHub release creation
+# Define the event triggers for the workflow
 on:
   push:
     tags:
-      - "v*"
-    branches: [main, tes] # Triggers on pushes to these branches
+      - "v*" # Trigger workflow when a tag starting with 'v' is pushed (e.g., v1.0.0)
+    branches: [main, tes] # Trigger workflow on push to main or tes branches
   pull_request:
-    branches: [main, tes] # Triggers on PRs to these branches
+    branches: [main, tes] # Trigger workflow on pull requests targeting main or tes
 
 jobs:
+  # ---------------------- TEST JOB ----------------------
   test:
     name: Run Flutter Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Use Ubuntu environment for testing
+
     steps:
-      - uses: actions/checkout@v4 # Checkout code
+      - uses: actions/checkout@v4 # Step 1: Checkout the repository code
 
-      - uses: subosito/flutter-action@v2 # Setup Flutter
+      - uses: subosito/flutter-action@v2 # Step 2: Set up Flutter SDK
         with:
-          channel: "stable"
-          flutter-version: "3.29.3" # Match your Flutter version
+          channel: "stable" # Use the stable Flutter channel
+          flutter-version: "3.29.3" # Specify the Flutter version
 
-      - run: flutter pub get # Install dependencies
+      - run: flutter pub get # Step 3: Install Flutter dependencies
 
-      - run: flutter test # Run unit/widget tests
+      - run: flutter test # Step 4: Run all Flutter unit and widget tests
 
-      - run: flutter analyze # Static code analysis
+      - run: flutter analyze # Step 5: Perform static code analysis to catch issues early
 
+  # ---------------------- ANDROID BUILD JOB ----------------------
   build-android:
     name: Build Android APK
-    needs: test # Depends on test job
-    runs-on: ubuntu-latest
+    needs: test # Run this job only after the 'test' job succeeds
+    runs-on: ubuntu-latest # Use Ubuntu for building Android
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # Step 1: Checkout the repository
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2 # Step 2: Setup Flutter environment
         with:
-          channel: "stable"
+          channel: "stable" # Use stable Flutter channel
 
-      - run: flutter pub get
+      - run: flutter pub get # Step 3: Install Flutter dependencies
 
-      - run: flutter build apk --release # Build Android APK
+      - run: flutter build apk --release # Step 4: Build the Android APK in release mode
 
-      - uses: actions/upload-artifact@v4 # Upload APK as artifact
+      - uses: actions/upload-artifact@v4 # Step 5: Upload the generated APK as an artifact
         with:
-          name: opsmate-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-      # Create  GitHub Release as a STEP (not a job)
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+          name: opsmate-apk # Name for the artifact in GitHub
+          path: build/app/outputs/flutter-apk/app-release.apk # Path to the built APK
+
+      - name: Create GitHub Release # Step 6: Create a GitHub release if a tag is pushed
+        if: startsWith(github.ref, 'refs/tags/') # Only run for tagged commits (e.g., v1.0.0)
         uses: softprops/action-gh-release@v2
         with:
-          files: build/app/outputs/flutter-apk/app-release.apk
-          token: ${{ secrets.GITHUB_TOKEN }}
+          files: build/app/outputs/flutter-apk/app-release.apk # Attach APK file to the release
+          token: ${{ secrets.GITHUB_TOKEN }} # Use built-in GitHub token (no need for PAT)
 
+  # ---------------------- IOS BUILD JOB ----------------------
   build-ios:
     name: Build iOS (Simulator)
-    needs: test
-    runs-on: macos-latest # iOS builds require macOS
+    needs: test # Run this job only after the 'test' job
+    runs-on: macos-latest # macOS is required for building iOS apps
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # Step 1: Checkout the repository
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2 # Step 2: Setup Flutter SDK
         with:
-          channel: "stable"
+          channel: "stable" # Use the stable channel for Flutter
 
-      - run: flutter pub get
+      - run: flutter pub get # Step 3: Get all Flutter packages
 
-      - run: flutter build ios --simulator --no-codesign # Build for iOS simulator
+      - run: flutter build ios --simulator --no-codesign # Step 4: Build iOS app for simulator without code signing
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4 # Step 5: Upload the iOS build folder as an artifact
         with:
-          name: opsmate-ios
-          path: build/ios/Release-iphonesimulator
+          name: opsmate-ios # Name for the iOS build artifact
+          path: build/ios/Release-iphonesimulator # Path where the iOS build is output
 
-      # Add GitHub Release as a STEP (not a job)
-      - name: Create GitHub Release (iOS)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Create GitHub Release (iOS) # Step 6: Create GitHub release for iOS simulator build
+        if: startsWith(github.ref, 'refs/tags/') # Only for tags like v1.0.0
         uses: softprops/action-gh-release@v2
         with:
-          files: build/ios/Release-iphonesimulator/Runner.app
-          token: ${{ secrets.GITHUB_TOKEN }} # built-in token
+          files: build/ios/Release-iphonesimulator/**/* # Attach built iOS simulator .app to release
+          token: ${{ secrets.GITHUB_TOKEN }} # Use GitHub’s built-in token to authorize release creation
