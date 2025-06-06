@@ -28,6 +28,8 @@ jobs:
 
       - run: flutter pub get # Step 3: Install Flutter dependencies
 
+      - run: flutter pub run build_runner build --delete-conflicting-outputs # ✅ This step to generate code
+
       - run: flutter test # Step 4: Run all Flutter unit and widget tests
 
       - run: flutter analyze # Step 5: Perform static code analysis to catch issues early
@@ -46,6 +48,8 @@ jobs:
           channel: "stable" # Use stable Flutter channel
 
       - run: flutter pub get # Step 3: Install Flutter dependencies
+
+      - run: flutter pub run build_runner build --delete-conflicting-outputs #step to generate code
 
       - run: flutter build apk --release # Step 4: Build the Android APK in release mode
 
