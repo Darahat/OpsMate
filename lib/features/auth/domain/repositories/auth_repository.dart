@@ -17,4 +17,13 @@ abstract class AuthRepository {
   /// Throws [ServerFailure] if registration fails
   /// Returns [User] on successful registration
   Future<User> register(String name, String email, String password);
+
+  /// Logout user
+  ///
+  /// Throws [ServerFailure] if registration fails
+  /// Returns [User] on successful registration
+  Future<void> logout();
+
+  /// Checks if there's an authenticated user
+  Future<User?> checkAuthStatus();
 }

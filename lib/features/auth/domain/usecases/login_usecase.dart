@@ -1,14 +1,6 @@
+import 'package:opsmate/core/usecases/usecase.dart';
 import 'package:opsmate/features/auth/domain/entities/user.dart';
 import 'package:opsmate/features/auth/domain/repositories/auth_repository.dart';
-
-///Abstract base class for use cases in the application
-///
-/// [Type] represents the return type of the use case
-/// [Params] represents the parameters required by the use case
-abstract class UseCase<Type, Params> {
-  /// Executes the use case with the provided parameters
-  Future<Type> call(Params params);
-}
 
 /// Encapsulates the business login for user login
 ///
@@ -39,7 +31,7 @@ class LoginParams {
   /// creates a [LoginParams] instance
   ///
   /// Requires both [email] and [password] for authentication
-  LoginParams(this.email, this.password);
+  LoginParams({required this.email, required this.password});
 
   /// User's email address
   final String email;
