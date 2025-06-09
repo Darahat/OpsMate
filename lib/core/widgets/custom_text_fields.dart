@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:opsmate/app/theme/app_theme.dart';
 
 /// A reusable custom text input field with standard styling and validation
 class CustomTextField extends StatelessWidget {

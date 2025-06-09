@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:opsmate/app/theme/app_theme.dart';
 import 'package:opsmate/core/widgets/custom_button.dart';
-import 'package:opsmate/core/widgets/custom_text_fields.dart';
 import 'package:opsmate/core/widgets/custom_text_fields.dart';
 
 /// A reusable authentication form widget supporting both login and registration.
