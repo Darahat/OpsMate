@@ -18,6 +18,17 @@ abstract class AuthRemoteDataSource {
   /// Throws a [ServerException] if the registration fails.
   /// Returns a [UserModel] representing the newly created user.
   Future<UserModel> register(String name, String email, String password);
+
+  /// Logs out the current user
+  ///
+  /// Throws a [ServerException] if the logout fails.
+  Future<void> logout();
+
+  /// Checks if there's an authenticated user
+  ///
+  /// Throws a [ServerException] if there's an error checking status.
+  /// Returns a [UserModel] if authenticated, null otherwise.
+  Future<UserModel?> checkAuthStatus();
 }
 
 /// A concrete implementation of [AuthRemoteDataSource] that uses Dio for HTTP requests.
@@ -53,6 +64,28 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {'email': email, 'password': password},
       );
       return UserModel.fromJson(response.data['user']);
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? e.message);
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await dioClient.post('/auth/logout');
+    } on DioException catch (e) {
+      throw ServerException(message: e.response?.data['message'] ?? e.message);
+    }
+  }
+
+  @override
+  Future<UserModel?> checkAuthStatus() async {
+    try {
+      final response = await dioClient.get('/auth/status');
+      if (response.data['authenticated']) {
+        return UserModel.fromJson(response.data['user']);
+      }
+      return null;
     } on DioException catch (e) {
       throw ServerException(message: e.response?.data['message'] ?? e.message);
     }

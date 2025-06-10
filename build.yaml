@@ -5,11 +5,9 @@ targets:
         enabled: true
         options:
           auto_register: true
-
-      retrofit_generator:retrofit:
-        enabled: true
-        options:
           generate_to_string: true
+        generate_for:
+          - lib/injection_container.dart
 
       json_serializable:json_serializable:
         enabled: true

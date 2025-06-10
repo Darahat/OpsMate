@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:opsmate/features/auth/presentation/widgets/auth_form.dart';
 
 /// A StatefulWidget that displays the user login interface.
 ///
@@ -14,7 +15,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
             context.go('/tasks');
@@ -23,6 +24,9 @@ class LoginPage extends StatelessWidget {
               SnackBar(content: Text(state.message ?? 'Login Failed')),
             );
           }
+        },
+        builder: (context, state) {
+          return const Center(child: AuthForm(isLogin: true));
         },
       ),
     );
