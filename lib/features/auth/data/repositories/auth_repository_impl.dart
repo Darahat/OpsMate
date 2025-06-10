@@ -1,7 +1,6 @@
 import 'package:opsmate/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:opsmate/features/auth/domain/entities/user.dart';
 import 'package:opsmate/features/auth/domain/repositories/auth_repository.dart';
-import '';
 
 /// A concrete implementation of [AuthRepository] that uses a remote data source.
 ///

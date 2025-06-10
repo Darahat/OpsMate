@@ -9,40 +9,58 @@ import 'package:opsmate/features/auth/data/datasources/auth_remote_datasource.da
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
-/// Creates a singleton instance of GetIt. This 'getIt' instance is your central service locator; you'll use it to register your dependencies and then retrieve them when needed throughout your application.
+/// Creates a singleton instance of GetIt
 final getIt = GetIt.instance;
 
+/// Configures all dependencies for the application.
+/// This function registers all dependencies synchronously to ensure
+/// they are available immediately when needed.
 Future<void> configureDependencies() async {
-  // Dio
+  // Reset if any of our dependencies are already registered (hot restart scenario)
+  if (getIt.isRegistered<Dio>() ||
+      getIt.isRegistered<AuthRemoteDataSource>() ||
+      getIt.isRegistered<AuthRepository>() ||
+      getIt.isRegistered<AuthBloc>()) {
+    await getIt.reset();
+  }
+
+  // Register Dio
   getIt.registerSingleton<Dio>(
     Dio()..options.baseUrl = 'https://api.example.com',
   );
 
-  // Data sources
+  // Register data sources
   getIt.registerSingleton<AuthRemoteDataSource>(
     AuthRemoteDataSourceImpl(dioClient: getIt<Dio>()),
   );
 
-  // Repositories
+  // Register repositories
   getIt.registerSingleton<AuthRepository>(
     AuthRepositoryImpl(authRemoteDataSource: getIt<AuthRemoteDataSource>()),
   );
 
-  // Usecases
-  getIt.registerSingleton<LoginUseCase>(LoginUseCase(getIt()));
-  getIt.registerSingleton<LogoutUseCase>(LogoutUseCase(getIt()));
-  getIt.registerSingleton<RegisterUseCase>(RegisterUseCase(getIt()));
-  getIt.registerSingleton<CheckAuthStatusUsecase>(
-    CheckAuthStatusUsecase(getIt()),
+  // Register use cases
+  getIt.registerSingleton<LoginUseCase>(LoginUseCase(getIt<AuthRepository>()));
+
+  getIt.registerSingleton<LogoutUseCase>(
+    LogoutUseCase(getIt<AuthRepository>()),
   );
 
-  // BLoC
+  getIt.registerSingleton<RegisterUseCase>(
+    RegisterUseCase(getIt<AuthRepository>()),
+  );
+
+  getIt.registerSingleton<CheckAuthStatusUsecase>(
+    CheckAuthStatusUsecase(getIt<AuthRepository>()),
+  );
+
+  // Register BLoC
   getIt.registerSingleton<AuthBloc>(
     AuthBloc(
-      loginUseCase: getIt(),
-      logoutUseCase: getIt(),
-      registerUseCase: getIt(),
-      checkAuthStatusUsecase: getIt(),
+      loginUseCase: getIt<LoginUseCase>(),
+      logoutUseCase: getIt<LogoutUseCase>(),
+      registerUseCase: getIt<RegisterUseCase>(),
+      checkAuthStatusUsecase: getIt<CheckAuthStatusUsecase>(),
     ),
   );
 }
