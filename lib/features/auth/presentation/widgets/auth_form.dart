@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:opsmate/core/widgets/custom_button.dart';
 import 'package:opsmate/core/widgets/custom_text_fields.dart';
+import 'package:opsmate/app/theme/app_theme.dart';
 
 /// A reusable authentication form widget supporting both login and registration.
 ///
@@ -45,67 +46,100 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          // Name Field is only shown in registration mode
-          if (!widget.isLogin)
-            CustomTextField(
-              controller: _nameController,
-              label: 'name',
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
-                }
-                return null;
-              },
-            ),
-          const SizedBox(height: 16),
+      // need scrollable feature here
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(28.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const SizedBox(
+                height: 100,
+                child: Image(image: AssetImage('assets/icon/icon.png')),
+              ),
+              const SizedBox(height: 16),
 
-          //Email input field
-          CustomTextField(
-            controller: _emailController,
-            label: 'Email',
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your email';
-              }
-              return null;
-            },
+              Text(
+                'Welcome back!',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              // Name Field is only shown in registration mode
+              if (!widget.isLogin)
+                CustomTextField(
+                  controller: _nameController,
+                  label: 'name',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                ),
+              const SizedBox(height: 16),
+
+              //Email input field
+              CustomTextField(
+                controller: _emailController,
+                label: 'Email',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // Password input field
+              CustomTextField(
+                controller: _passwordController,
+                label: 'Password',
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
+              Text(
+                widget.isLogin ? 'Forget Password' : '',
+                textAlign: TextAlign.left,
+              ),
+              const SizedBox(height: 24),
+              BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  return CustomButton(
+                    onPressed:
+                        state.status == AuthStatus.loading
+                            ? null
+                            : () {
+                              if (_formKey.currentState!.validate()) {}
+                            },
+                    child:
+                        state.status == AuthStatus.loading
+                            ? const CircularProgressIndicator()
+                            : Text(widget.isLogin ? 'Login' : 'Sign Up'),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text(
+                  widget.isLogin
+                      ? 'Create an account'
+                      : 'Already have an account? Login',
+                ),
+              ),
+              const SizedBox(height: 26),
+            ],
           ),
-          const SizedBox(height: 16),
-          // Password input field
-          CustomTextField(
-            controller: _passwordController,
-            label: 'Password',
-            obscureText: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              if (value.length < 6) {
-                return 'Password must be at least 6 characters';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 24),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              return CustomButton(
-                onPressed:
-                    state.status == AuthStatus.loading
-                        ? null
-                        : () {
-                          if (_formKey.currentState!.validate()) {}
-                        },
-                child:
-                    state.status == AuthStatus.loading
-                        ? const CircularProgressIndicator()
-                        : Text(widget.isLogin ? 'Login' : 'Sign Up'),
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
