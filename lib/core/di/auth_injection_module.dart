@@ -30,8 +30,10 @@ abstract class AuthInjectionModule {
   /// Registers [AuthRepositoryImpl] as a singleton implementation
   /// of [AuthRepository], which uses the [AuthRemoteDataSource].
   @singleton
-  AuthRepository get authRepository =>
-      AuthRepositoryImpl(authRemoteDataSource: getIt());
+  AuthRepository get authRepository => AuthRepositoryImpl(
+    authRemoteDataSource: getIt(),
+    authLocalDataSource: getIt(),
+  );
 
   // ----------------------
   // Domain Layer (Use Cases)

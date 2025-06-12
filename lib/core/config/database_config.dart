@@ -14,4 +14,7 @@ class DatabaseConfig {
 
   /// The Hive box used to store daily plan data.
   static const String plansBoxName = 'daily_plans';
+
+  /// The Hive box used to store authentication data.
+  static const String authBoxname = 'auth';
 }

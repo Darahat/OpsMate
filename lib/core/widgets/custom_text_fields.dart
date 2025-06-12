@@ -29,6 +29,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       validator: validator,
+      decoration: InputDecoration(labelText: label),
     );
   }
 }

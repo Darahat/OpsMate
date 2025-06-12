@@ -1,13 +1,16 @@
-import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:opsmate/core/config/env_config.dart';
+import 'package:opsmate/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:opsmate/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:opsmate/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:opsmate/features/auth/domain/repositories/auth_repository.dart';
+import 'package:opsmate/features/auth/domain/usecases/check_auth_status_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/login_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/register_usecase.dart';
-import 'package:opsmate/features/auth/domain/usecases/check_auth_status_usecase.dart';
-import 'package:opsmate/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:opsmate/features/auth/domain/repositories/auth_repository.dart';
-import 'package:opsmate/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:dio/dio.dart';
-import 'package:get_it/get_it.dart';
+import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 
 /// Creates a singleton instance of GetIt
 final getIt = GetIt.instance;
@@ -24,19 +27,31 @@ Future<void> configureDependencies() async {
     await getIt.reset();
   }
 
+  /// Open Hive box for auth data
+
+  final authBox = await Hive.openBox<String>('auth_box');
+
+  /// Register Hive box
+  getIt.registerSingleton<Box<String>>(authBox);
   // Register Dio
-  getIt.registerSingleton<Dio>(
-    Dio()..options.baseUrl = 'https://api.example.com',
-  );
+  getIt.registerSingleton<Dio>(Dio()..options.baseUrl = EnvConfig.apiBaseUrl);
 
   // Register data sources
   getIt.registerSingleton<AuthRemoteDataSource>(
     AuthRemoteDataSourceImpl(dioClient: getIt<Dio>()),
   );
 
+  /// Register local data source
+  getIt.registerSingleton<AuthLocalDataSource>(
+    AuthLocalDataSourceImpl(box: getIt<Box<String>>()),
+  );
+
   // Register repositories
   getIt.registerSingleton<AuthRepository>(
-    AuthRepositoryImpl(authRemoteDataSource: getIt<AuthRemoteDataSource>()),
+    AuthRepositoryImpl(
+      authRemoteDataSource: getIt<AuthRemoteDataSource>(),
+      authLocalDataSource: getIt<AuthLocalDataSource>(),
+    ),
   );
 
   // Register use cases

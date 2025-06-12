@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
@@ -110,15 +112,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
     try {
       final user = await checkAuthStatusUsecase.call(const NoParams());
-      emit(
-        state.copyWith(
-          status:
-              user != null
-                  ? AuthStatus.authenticated
-                  : AuthStatus.unauthenticated,
-          user: user,
-        ),
-      );
+      if (user != null) {
+        emit(
+          state.copyWith(
+            status:
+                user != null
+                    ? AuthStatus.authenticated
+                    : AuthStatus.unauthenticated,
+            user: user,
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: AuthStatus.authenticated));
+      }
     } catch (e) {
       emit(
         state.copyWith(

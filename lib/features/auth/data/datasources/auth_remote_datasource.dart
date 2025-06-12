@@ -52,7 +52,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return UserModel.fromJson(response.data['user']);
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? e.message);
+      throw ServerException(
+        message: e.response?.data['message'] ?? e.message ?? 'Login Failed',
+      );
     }
   }
 
@@ -61,11 +63,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await dioClient.post(
         '/auth/register',
-        data: {'email': email, 'password': password},
+        data: {'name': name, 'email': email, 'password': password},
       );
       return UserModel.fromJson(response.data['user']);
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? e.message);
+      throw ServerException(
+        message:
+            e.response?.data['message'] ?? e.message ?? 'Registration failed',
+      );
     }
   }
 
@@ -74,7 +79,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       await dioClient.post('/auth/logout');
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? e.message);
+      throw ServerException(
+        message: e.response?.data['message'] ?? e.message ?? 'Logout failed',
+      );
     }
   }
 
@@ -82,12 +89,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel?> checkAuthStatus() async {
     try {
       final response = await dioClient.get('/auth/status');
-      if (response.data['authenticated']) {
+      if (response.data['authenticated'] == true) {
         return UserModel.fromJson(response.data['user']);
       }
       return null;
     } on DioException catch (e) {
-      throw ServerException(message: e.response?.data['message'] ?? e.message);
+      throw ServerException(
+        message:
+            e.response?.data['message'] ??
+            e.message ??
+            'Failed to check auth status',
+      );
     }
   }
 }
