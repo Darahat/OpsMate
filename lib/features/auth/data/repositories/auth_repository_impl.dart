@@ -91,8 +91,31 @@ class AuthRepositoryImpl implements AuthRepository {
         await authLocalDataSource.cacheUser(remoteUser);
         return remoteUser;
       }
+
+      /// If remote returns null, clear local cache to ensure consistency await
+      await authLocalDataSource.clearUser();
+      return null;
     } on ServerException {
-      return await authLocalDataSource.getLastLoggedInUser();
+      /// Only return cached user if we're sure it's valid
+      try {
+        final cachedUser = await authLocalDataSource.getLastLoggedInUser();
+        if (cachedUser != null) {
+          try {
+            final remoteUser = await authRemoteDataSource.checkAuthStatus();
+            if (remoteUser == null) {
+              /// remote says no user is logged in clear cache await authLocalDatasource.
+              await authLocalDataSource.clearUser();
+              return null;
+            }
+          } catch (_) {
+            // if verification fails, assume cached user is valid
+            return cachedUser;
+          }
+        }
+        return cachedUser;
+      } catch (_) {
+        return null;
+      }
     }
   }
 }

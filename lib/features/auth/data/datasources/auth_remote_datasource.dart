@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import 'package:opsmate/core/errors/exceptions.dart';
 import 'package:opsmate/features/auth/data/models/user_model.dart';
 
@@ -39,6 +40,12 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<UserModel> login(String email, String password) async {
     try {
+      // for emulators, disable automatic recaptcha verification
+      if (kDebugMode) {
+        await _firebaseAuth.setSettings(
+          appVerificationDisabledForTesting: true,
+        );
+      }
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -47,6 +54,9 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
       if (userCredential.user == null) {
         throw ServerException(message: 'Login failed: User is null');
       }
+
+      /// Registration Successfull
+      print('User logged in: ${userCredential.user?.email}');
 
       return _mapFirebaseUserToUserModel(userCredential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -59,6 +69,12 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<UserModel> register(String name, String email, String password) async {
     try {
+      // For emulators, disable automatic recaptcha verification
+      if (kDebugMode) {
+        await _firebaseAuth.setSettings(
+          appVerificationDisabledForTesting: true,
+        );
+      }
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -67,6 +83,7 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
       if (userCredential.user == null) {
         throw ServerException(message: 'Registration failed: User is null');
       }
+      print('User registered: ${userCredential.user?.uid}');
 
       // Update the user's display name
       await userCredential.user!.updateDisplayName(name);
@@ -77,10 +94,35 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
       return _mapFirebaseUserToUserModel(updatedUser!);
     } on firebase_auth.FirebaseAuthException catch (e) {
+      print(
+        'Firebase Auth Exception during registration: ${e.code} - ${e.message}',
+      );
+      // Special handling for reCAPTCHA issues
+      if (e.code == 'captcha-check-failed' ||
+          e.message?.contains('reCAPTCHA') == true) {
+        print(
+          'reCAPTCHA verification failed. Checking Firebase project configuration...',
+        );
+        // Log detailed information to help diagnose the issue
+        print('Device info: ${await _getDeviceInfo()}');
+        throw ServerException(
+          message:
+              'Authentication security check failed. Please ensure you have Google Play Services updated on your device.',
+        );
+      }
+
       throw ServerException(message: _getErrorMessage(e));
     } catch (e) {
+      print('General Exception during registration: ${e.toString()}');
       throw ServerException(message: 'Registration failed: ${e.toString()}');
     }
+  }
+
+  // Helper method to get device information for debugging
+  Future<String> _getDeviceInfo() async {
+    // In a real implementation, you would use a package like device_info_plus
+    // to get detailed device information
+    return 'Platform: ${kIsWeb ? 'Web' : defaultTargetPlatform.toString()}';
   }
 
   @override
@@ -130,6 +172,19 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
         return 'The password is too weak.';
       case 'invalid-email':
         return 'The email address is invalid.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      case 'operation-not-allowed':
+        return 'This operation is not allowed. Please contact support.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'captcha-check-failed':
+        return 'reCAPTCHA verification failed. Please try again.';
+      case 'internal-error':
+        if (e.message?.contains('CONFIGURATION_NOT_FOUND') ?? false) {
+          return 'Firebase configuration error. Please contact support.';
+        }
+        return 'An internal error occurred. Please try again later.';
       default:
         return e.message ?? 'An unknown error occurred.';
     }

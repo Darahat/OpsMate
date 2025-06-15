@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         // Match AGP version with Gradle 8.10.2
         classpath("com.android.tools.build:gradle:8.4.0")
-    }
+     }
 }
 
 allprojects {

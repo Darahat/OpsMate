@@ -16,10 +16,15 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
+        listenWhen:
+            (previous, current) =>
+                previous.status != current.status ||
+                previous.message != current.message,
         listener: (context, state) {
-          if (state.status == AuthStatus.authenticated) {
+          if (state.status == AuthStatus.authenticated && state.user != null) {
             context.go('/tasks');
-          } else if (state.status == AuthStatus.unauthenticated) {
+          } else if (state.status == AuthStatus.unauthenticated &&
+              state.message != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message ?? 'Login Failed')),
             );

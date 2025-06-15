@@ -16,11 +16,20 @@ class SignupPage extends StatelessWidget {
         listenWhen:
             (previous, current) =>
                 previous.status != current.status &&
-                current.status == AuthStatus.authenticated,
+                    current.status == AuthStatus.authenticated ||
+                previous.message != current.message,
         listener: (context, state) {
-          if (state.status == AuthStatus.authenticated) {
+          if (state.status == AuthStatus.authenticated && state.user != null) {
             // Navigate to tasks page using GoRouter
             context.go('/tasks');
+          } else if (state.status == AuthStatus.unauthenticated &&
+              state.message != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message ?? 'Registration Failed'),
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
           }
         },
         child: const Center(child: AuthForm(isLogin: false)),

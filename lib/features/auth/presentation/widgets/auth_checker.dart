@@ -13,6 +13,11 @@ class AuthChecker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// Dispatch check auth status event when widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthBloc>().add(const CheckAuthStatusEvent());
+    });
+
     return BlocListener<AuthBloc, AuthState>(
       listenWhen:
           (previous, current) =>

@@ -18,7 +18,7 @@ class _TaskListPageState extends State<TaskListPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         // Listen for authentication state changes
-        if (state.status == AuthStatus.unauthenticated) {
+        if (state.status == AuthStatus.unauthenticated || state.user == null) {
           // Navigate to login page when user is logged out
           context.go('/login');
         }

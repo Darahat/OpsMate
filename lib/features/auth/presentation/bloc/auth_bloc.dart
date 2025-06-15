@@ -53,7 +53,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       emit(
-        state.copyWith(status: AuthStatus.authenticated, message: e.toString()),
+        state.copyWith(
+          status: AuthStatus.unauthenticated,
+          message: e.toString(),
+        ),
       );
     }
   }
@@ -78,7 +81,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       emit(
-        state.copyWith(status: AuthStatus.authenticated, message: e.toString()),
+        state.copyWith(
+          status: AuthStatus.unauthenticated,
+          message: e.toString(),
+        ),
       );
     }
   }
