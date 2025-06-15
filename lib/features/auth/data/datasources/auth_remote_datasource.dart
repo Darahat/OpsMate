@@ -1,6 +1,5 @@
-import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:opsmate/core/errors/exceptions.dart';
-// import 'package:dio/dio.dart';
 import 'package:opsmate/features/auth/data/models/user_model.dart';
 
 /// An abstract class defining the contract for authentication remote data sources.
@@ -31,75 +30,108 @@ abstract class AuthRemoteDataSource {
   Future<UserModel?> checkAuthStatus();
 }
 
-/// A concrete implementation of [AuthRemoteDataSource] that uses Dio for HTTP requests.
-///
-/// This class handles the actual network communication for authentication-related
-/// operations like login and registration
-class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  /// Creates a new [AuthRemoteDataSourceImpl] instance.
-  ///
-  /// Requires a[dioClient] to be used for network requests.
-  AuthRemoteDataSourceImpl({required this.dioClient});
+class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
+  final firebase_auth.FirebaseAuth _firebaseAuth;
 
-  /// The Dio client used to make HTTP requests.
-  final Dio dioClient;
+  FirebaseAuthRemoteDataSource({firebase_auth.FirebaseAuth? firebaseAuth})
+    : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
+
   @override
   Future<UserModel> login(String email, String password) async {
     try {
-      final response = await dioClient.post(
-        '/auth/login',
-        data: {'email': email, 'password': password},
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      return UserModel.fromJson(response.data['user']);
-    } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? e.message ?? 'Login Failed',
-      );
+
+      if (userCredential.user == null) {
+        throw ServerException(message: 'Login failed: User is null');
+      }
+
+      return _mapFirebaseUserToUserModel(userCredential.user!);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: _getErrorMessage(e));
+    } catch (e) {
+      throw ServerException(message: 'Login failed: ${e.toString()}');
     }
   }
 
   @override
   Future<UserModel> register(String name, String email, String password) async {
     try {
-      final response = await dioClient.post(
-        '/auth/register',
-        data: {'name': name, 'email': email, 'password': password},
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      return UserModel.fromJson(response.data['user']);
-    } on DioException catch (e) {
-      throw ServerException(
-        message:
-            e.response?.data['message'] ?? e.message ?? 'Registration failed',
-      );
+
+      if (userCredential.user == null) {
+        throw ServerException(message: 'Registration failed: User is null');
+      }
+
+      // Update the user's display name
+      await userCredential.user!.updateDisplayName(name);
+
+      // Reload user to get updated profile
+      await userCredential.user!.reload();
+      final updatedUser = _firebaseAuth.currentUser;
+
+      return _mapFirebaseUserToUserModel(updatedUser!);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: _getErrorMessage(e));
+    } catch (e) {
+      throw ServerException(message: 'Registration failed: ${e.toString()}');
     }
   }
 
   @override
   Future<void> logout() async {
     try {
-      await dioClient.post('/auth/logout');
-    } on DioException catch (e) {
-      throw ServerException(
-        message: e.response?.data['message'] ?? e.message ?? 'Logout failed',
-      );
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      throw ServerException(message: 'Logout failed: ${e.toString()}');
     }
   }
 
   @override
   Future<UserModel?> checkAuthStatus() async {
     try {
-      final response = await dioClient.get('/auth/status');
-      if (response.data['authenticated'] == true) {
-        return UserModel.fromJson(response.data['user']);
+      final firebaseUser = _firebaseAuth.currentUser;
+      if (firebaseUser != null) {
+        return _mapFirebaseUserToUserModel(firebaseUser);
       }
       return null;
-    } on DioException catch (e) {
+    } catch (e) {
       throw ServerException(
-        message:
-            e.response?.data['message'] ??
-            e.message ??
-            'Failed to check auth status',
+        message: 'Failed to check auth status: ${e.toString()}',
       );
+    }
+  }
+
+  // Helper method to map Firebase User to your UserModel
+  UserModel _mapFirebaseUserToUserModel(firebase_auth.User firebaseUser) {
+    return UserModel(
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName ?? 'User',
+      email: firebaseUser.email ?? '',
+      // Add any other fields you need
+    );
+  }
+
+  // Helper method to get readable error messages
+  String _getErrorMessage(firebase_auth.FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'No user found with this email.';
+      case 'wrong-password':
+        return 'Wrong password provided.';
+      case 'email-already-in-use':
+        return 'The email address is already in use.';
+      case 'weak-password':
+        return 'The password is too weak.';
+      case 'invalid-email':
+        return 'The email address is invalid.';
+      default:
+        return e.message ?? 'An unknown error occurred.';
     }
   }
 }

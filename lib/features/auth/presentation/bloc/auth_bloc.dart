@@ -112,19 +112,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
     try {
       final user = await checkAuthStatusUsecase.call(const NoParams());
-      if (user != null) {
-        emit(
-          state.copyWith(
-            status:
-                user != null
-                    ? AuthStatus.authenticated
-                    : AuthStatus.unauthenticated,
-            user: user,
-          ),
-        );
-      } else {
-        emit(state.copyWith(status: AuthStatus.authenticated));
-      }
+
+      emit(
+        state.copyWith(
+          status:
+              user != null
+                  ? AuthStatus.authenticated
+                  : AuthStatus.unauthenticated,
+          user: user,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(

@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:opsmate/core/config/env_config.dart';
 import 'package:opsmate/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:opsmate/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:opsmate/features/auth/data/repositories/auth_repository_impl.dart';
@@ -20,28 +19,26 @@ final getIt = GetIt.instance;
 /// they are available immediately when needed.
 Future<void> configureDependencies() async {
   // Reset if any of our dependencies are already registered (hot restart scenario)
-  if (getIt.isRegistered<Dio>() ||
-      getIt.isRegistered<AuthRemoteDataSource>() ||
+  if (getIt.isRegistered<AuthRemoteDataSource>() ||
       getIt.isRegistered<AuthRepository>() ||
       getIt.isRegistered<AuthBloc>()) {
     await getIt.reset();
   }
 
-  /// Open Hive box for auth data
-
+  // Open Hive box for auth data
   final authBox = await Hive.openBox<String>('auth_box');
 
-  /// Register Hive box
+  // Register Hive box
   getIt.registerSingleton<Box<String>>(authBox);
-  // Register Dio
-  getIt.registerSingleton<Dio>(Dio()..options.baseUrl = EnvConfig.apiBaseUrl);
+
+  // Register Firebase Auth
+  getIt.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
 
   // Register data sources
   getIt.registerSingleton<AuthRemoteDataSource>(
-    AuthRemoteDataSourceImpl(dioClient: getIt<Dio>()),
+    FirebaseAuthRemoteDataSource(firebaseAuth: getIt<FirebaseAuth>()),
   );
 
-  /// Register local data source
   getIt.registerSingleton<AuthLocalDataSource>(
     AuthLocalDataSourceImpl(box: getIt<Box<String>>()),
   );
@@ -56,15 +53,12 @@ Future<void> configureDependencies() async {
 
   // Register use cases
   getIt.registerSingleton<LoginUseCase>(LoginUseCase(getIt<AuthRepository>()));
-
   getIt.registerSingleton<LogoutUseCase>(
     LogoutUseCase(getIt<AuthRepository>()),
   );
-
   getIt.registerSingleton<RegisterUseCase>(
     RegisterUseCase(getIt<AuthRepository>()),
   );
-
   getIt.registerSingleton<CheckAuthStatusUsecase>(
     CheckAuthStatusUsecase(getIt<AuthRepository>()),
   );

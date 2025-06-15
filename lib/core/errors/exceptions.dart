@@ -24,34 +24,29 @@ abstract class AppException implements Exception {
 }
 
 /// Thrown when there's an error communication with the server
-class ServerException extends AppException {
-  /// Creates a [Serexception]
-  ///
-  /// [message] describes the server error
-  /// [statusCode] is the HTTP status code (if available)
-  /// [innerException] is the original exception (if available)
-  const ServerException({
-    required String message,
-    this.statusCode,
-    Exception? innerException,
-  }) : super(message, innerException);
+/// Exception thrown when a server operation fails.
+class ServerException implements Exception {
+  /// Creates a [ServerException] with an error message.
+  ServerException({required this.message});
 
-  /// HTTP status code from the server (if avilable)
-  final int? statusCode;
+  /// The error message describing what went wrong.
+  final String message;
+
   @override
-  String toString() =>
-      statusCode != null
-          ? 'ServerException: $message(Status code: $statusCode)'
-          : 'ServerException: $message';
+  String toString() => 'ServerException: $message';
 }
 
-/// thrown when there's an error with local data storage
-class CacheException extends AppException {
-  /// Creates a [CacheException]
-  ///
-  /// [message] describes the cache error
-  /// [innerException] is the original Exception (if available)
-  const CacheException(super.message, [super.innerException]);
+/// Exception thrown when a cache operation fails.
+/// Exception thrown when a server operation fails.
+class CacheException implements Exception {
+  /// Creates a [CacheException] with an error message.
+  CacheException({required this.message});
+
+  /// The error message describing what went wrong.
+  final String message;
+
+  @override
+  String toString() => 'CacheException: $message';
 }
 
 /// Thrown when there's a network connectivity issue
