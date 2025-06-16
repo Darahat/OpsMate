@@ -27,6 +27,8 @@ class AuthChecker extends StatelessWidget {
         if (state.status == AuthStatus.unauthenticated) {
           // Redirect to login page if user is not authenticated
           context.go('/login');
+        } else {
+          print('User is authenticated');
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(

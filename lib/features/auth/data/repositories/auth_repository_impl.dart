@@ -31,10 +31,23 @@ class AuthRepositoryImpl implements AuthRepository {
   /// Delegates to [authRemoteDataSource.login] for network communication.
   /// Returns a [User] on successful authentication.
   /// Throws [ServerFailure] if authentication fails.
+
   @override
   Future<User> login(String email, String password) async {
     try {
       final userModel = await authRemoteDataSource.login(email, password);
+      await authLocalDataSource.cacheUser(userModel);
+      return userModel;
+    } on ServerException catch (e) {
+      throw ServerFailure(message: e.message);
+    }
+  }
+
+  ///   authentication with google
+  @override
+  Future<User> signInWithGoogle() async {
+    try {
+      final userModel = await authRemoteDataSource.signInWithGoogle();
       await authLocalDataSource.cacheUser(userModel);
       return userModel;
     } on ServerException catch (e) {

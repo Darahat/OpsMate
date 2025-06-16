@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
-import 'package:opsmate/core/utils/network_info.dart';
 import 'package:opsmate/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:opsmate/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:opsmate/features/auth/data/repositories/auth_repository_impl.dart';
@@ -9,6 +8,7 @@ import 'package:opsmate/features/auth/domain/usecases/login_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/register_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/check_auth_status_usecase.dart';
+import 'package:opsmate/features/auth/domain/usecases/google_signin_usecases.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:opsmate/injection_container.dart';
 
@@ -61,6 +61,10 @@ abstract class AuthInjectionModule {
   RegisterUseCase get registerUseCase =>
       RegisterUseCase(getIt<AuthRepository>());
 
+  @singleton
+  GoogleSignInUseCase get googleSignInUseCase =>
+      GoogleSignInUseCase(getIt<AuthRepository>());
+
   /// Registers [CheckAuthStatusUsecase] as a singleton, used to verify authentication state.
   @singleton
   CheckAuthStatusUsecase get checkAuthStatusUsecase =>
@@ -78,6 +82,7 @@ abstract class AuthInjectionModule {
     logoutUseCase: getIt<LogoutUseCase>(),
     registerUseCase: getIt<RegisterUseCase>(),
     checkAuthStatusUsecase: getIt<CheckAuthStatusUsecase>(),
+    googleSignInUseCase: getIt<GoogleSignInUseCase>(),
     // networkInfo: getIt<NetworkInfo>(),
   );
 }

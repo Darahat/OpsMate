@@ -10,6 +10,7 @@ import 'package:opsmate/features/auth/domain/usecases/login_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/register_usecase.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:opsmate/features/auth/domain/usecases/google_signin_usecases.dart';
 
 /// Creates a singleton instance of GetIt
 final getIt = GetIt.instance;
@@ -62,6 +63,9 @@ Future<void> configureDependencies() async {
   getIt.registerSingleton<CheckAuthStatusUsecase>(
     CheckAuthStatusUsecase(getIt<AuthRepository>()),
   );
+  getIt.registerSingleton<GoogleSignInUseCase>(
+    GoogleSignInUseCase(getIt<AuthRepository>()),
+  );
 
   // Register BLoC
   getIt.registerSingleton<AuthBloc>(
@@ -70,6 +74,7 @@ Future<void> configureDependencies() async {
       logoutUseCase: getIt<LogoutUseCase>(),
       registerUseCase: getIt<RegisterUseCase>(),
       checkAuthStatusUsecase: getIt<CheckAuthStatusUsecase>(),
+      googleSignInUseCase: getIt<GoogleSignInUseCase>(),
     ),
   );
 }

@@ -26,4 +26,7 @@ abstract class AuthRepository {
 
   /// Checks if there's an authenticated user
   Future<User?> checkAuthStatus();
+
+  /// Sign in with Google
+  Future<User> signInWithGoogle();
 }

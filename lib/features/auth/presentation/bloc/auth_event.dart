@@ -69,3 +69,9 @@ class CheckAuthStatusEvent extends AuthEvent {
   /// Constructs a [CheckAuthStatusEvent]
   const CheckAuthStatusEvent();
 }
+
+///Event Triggered when user click on GoogleSignin
+class GoogleSignInEvent extends AuthEvent {
+  /// Constructs a [GoogleSignInEvent]
+  const GoogleSignInEvent();
+}

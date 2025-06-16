@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:opsmate/core/widgets/custom_button.dart';
 import 'package:opsmate/core/widgets/custom_text_fields.dart';
+import 'package:opsmate/features/auth/presentation/widgets/google_signin_button.dart';
 
 /// A reusable authentication form widget supporting both login and registration.
 ///
@@ -56,7 +57,6 @@ class _AuthFormState extends State<AuthForm> {
               child: Image(image: AssetImage('assets/icon/icon.png')),
             ),
             const SizedBox(height: 24),
-
             Text(
               widget.isLogin ? 'Welcome back!' : 'Create Account',
               style: Theme.of(context).textTheme.headlineMedium,
@@ -124,35 +124,67 @@ class _AuthFormState extends State<AuthForm> {
 
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
-                return CustomButton(
-                  onPressed:
-                      state.status == AuthStatus.loading
-                          ? null
-                          : () {
-                            if (_formKey.currentState!.validate()) {
-                              if (widget.isLogin) {
-                                context.read<AuthBloc>().add(
-                                  LoginEvent(
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  ),
-                                );
-                              } else {
-                                context.read<AuthBloc>().add(
-                                  RegisterEvent(
-                                    name: _nameController.text,
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                  child:
-                      state.status == AuthStatus.loading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(widget.isLogin ? 'Login' : 'Sign Up'),
+                final user = state.user;
+                print('Auth Status : ${state.status}');
+                print('User Present: ${user != null}');
+                if (user != null && state.status == AuthStatus.authenticated) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/tasks');
+                  });
+
+                  print('Authenticated User: ${user.email}');
+                } else if (user != null ||
+                    state.status == AuthStatus.unauthenticated) {
+                  print('User ID: Not Found');
+                }
+                return Column(
+                  children: [
+                    CustomButton(
+                      onPressed:
+                          state.status == AuthStatus.loading
+                              ? null
+                              : () {
+                                if (_formKey.currentState!.validate()) {
+                                  if (widget.isLogin) {
+                                    context.read<AuthBloc>().add(
+                                      LoginEvent(
+                                        email: _emailController.text,
+                                        password: _passwordController.text,
+                                      ),
+                                    );
+                                  } else {
+                                    context.read<AuthBloc>().add(
+                                      RegisterEvent(
+                                        name: _nameController.text,
+                                        email: _emailController.text,
+                                        password: _passwordController.text,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                      child:
+                          state.status == AuthStatus.loading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : Text(widget.isLogin ? 'Login' : 'Sign Up'),
+                    ),
+                  ],
                 );
+              },
+            ),
+            const SizedBox(height: 32),
+
+            /// Google Sign-in button
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                return state.status == AuthStatus.loading
+                    ? const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeCap: StrokeCap.round,
+                    )
+                    : const GoogleSignInButton();
               },
             ),
 

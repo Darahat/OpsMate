@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart';
 import 'package:opsmate/core/errors/exceptions.dart';
 import 'package:opsmate/features/auth/data/models/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// An abstract class defining the contract for authentication remote data sources.
 ///
@@ -29,13 +30,23 @@ abstract class AuthRemoteDataSource {
   /// Throws a [ServerException] if there's an error checking status.
   /// Returns a [UserModel] if authenticated, null otherwise.
   Future<UserModel?> checkAuthStatus();
+
+  /// Sign in with Google
+  ///
+  /// Throws a [ServerException] if the sign in fails.
+  /// Returns a [UserModel] if sign in is successful.
+  Future<UserModel> signInWithGoogle();
 }
 
 class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
 
-  FirebaseAuthRemoteDataSource({firebase_auth.FirebaseAuth? firebaseAuth})
-    : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
+  FirebaseAuthRemoteDataSource({
+    firebase_auth.FirebaseAuth? firebaseAuth,
+    GoogleSignIn? googleSignIn,
+  }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
+       _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   @override
   Future<UserModel> login(String email, String password) async {
@@ -129,7 +140,13 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<void> logout() async {
     try {
       await _firebaseAuth.signOut();
+
+      /// Also sign out from Google if the user signed in with Google
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.signOut();
+      }
     } catch (e) {
+      print('Logout error: ${e.toString()}');
       throw ServerException(message: 'Logout failed: ${e.toString()}');
     }
   }
@@ -157,6 +174,36 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
       email: firebaseUser.email ?? '',
       // Add any other fields you need
     );
+  }
+
+  @override
+  Future<UserModel> signInWithGoogle() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw ServerException(message: 'Google sign-in failed: User is null');
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = firebase_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+
+      if (userCredential.user == null) {
+        throw ServerException(message: 'Google sign-in failed: User is null');
+      }
+
+      return _mapFirebaseUserToUserModel(userCredential.user!);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw ServerException(message: _getErrorMessage(e));
+    } catch (e) {
+      throw ServerException(message: 'Google sign-in failed: ${e.toString()}');
+    }
   }
 
   // Helper method to get readable error messages

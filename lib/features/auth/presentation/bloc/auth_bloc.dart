@@ -10,7 +10,7 @@ import 'package:opsmate/features/auth/domain/usecases/login_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/register_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/check_auth_status_usecase.dart';
-
+import 'package:opsmate/features/auth/domain/usecases/google_signin_usecases.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -30,11 +30,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.logoutUseCase,
     required this.checkAuthStatusUsecase,
     required this.registerUseCase,
+    required this.googleSignInUseCase,
   }) : super(const AuthState()) {
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<LogoutEvent>(_onLogout);
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
+    on<GoogleSignInEvent>(_onGoogleSignIn);
   }
 
   ///Handles login event
@@ -101,9 +103,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
     } catch (e) {
+      print('Logout error: ${e.toString()}');
       emit(
         state.copyWith(
-          status: AuthStatus.authenticated,
+          status: AuthStatus.unauthenticated,
           message: 'Logout Failed: ${e.toString()}',
         ),
       );
@@ -132,7 +135,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(
         state.copyWith(
           status: AuthStatus.unauthenticated,
-          message: 'Failed to check auth status',
+          message: 'Logout partially failed ${e.toString()}',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onGoogleSignIn(
+    GoogleSignInEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    try {
+      final user = await googleSignInUseCase.call(const NoParams());
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          message: 'Google Signin successfull',
+        ),
+      );
+      print("""Google Signin Successful from auth bloc ${user.email}""");
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AuthStatus.unauthenticated,
+          message: 'Signin Failed: ${e.toString()}',
         ),
       );
     }
@@ -150,4 +177,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   /// Use case responsile for handling user Authentication check
   final CheckAuthStatusUsecase checkAuthStatusUsecase;
+
+  /// Use case respnsile for hndling google signin
+  final GoogleSignInUseCase googleSignInUseCase;
 }
