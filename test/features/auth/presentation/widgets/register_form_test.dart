@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:opsmate/features/auth/presentation/widgets/auth_form.dart';
-import 'package:opsmate/core/widgets/custom_button.dart';
-import 'package:opsmate/core/widgets/custom_text_fields.dart';
 
 // Create a mock class for AuthBloc
 class MockAuthBloc extends Mock implements AuthBloc {}
@@ -134,5 +132,5 @@ void main() {
 
     // Verify that the register event was dispatched to the bloc
     verify(() => mockAuthBloc.add(any(that: isA<RegisterEvent>()))).called(1);
-  }); 
+  });
 }

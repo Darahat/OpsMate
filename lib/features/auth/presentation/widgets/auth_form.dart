@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
@@ -125,17 +126,22 @@ class _AuthFormState extends State<AuthForm> {
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 final user = state.user;
-                print('Auth Status : ${state.status}');
-                print('User Present: ${user != null}');
+                if (kDebugMode) {
+                  print('Auth Status : ${state.status}');
+                  print('User Present: ${user != null}');
+                }
                 if (user != null && state.status == AuthStatus.authenticated) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     context.go('/tasks');
                   });
-
-                  print('Authenticated User: ${user.email}');
+                  if (kDebugMode) {
+                    print('Authenticated User: ${user.email}');
+                  }
                 } else if (user != null ||
                     state.status == AuthStatus.unauthenticated) {
-                  print('User ID: Not Found');
+                  if (kDebugMode) {
+                    print('User ID: Not Found');
+                  }
                 }
                 return Column(
                   children: [

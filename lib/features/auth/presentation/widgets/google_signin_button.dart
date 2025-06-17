@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 
+/// A custom button for Google Sign-in functionality.
 class GoogleSignInButton extends StatelessWidget {
-  const GoogleSignInButton({Key? key}) : super(key: key);
+  /// Creates a [GoogleSignInButton] instance.
+  const GoogleSignInButton({super.key});
 
   @override
   Widget build(BuildContext context) {

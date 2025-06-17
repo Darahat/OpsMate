@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:opsmate/core/usecases/usecase.dart';
-
+import 'package:flutter/foundation.dart';
 import 'package:opsmate/features/auth/domain/entities/user.dart';
 import 'package:opsmate/features/auth/domain/usecases/login_usecase.dart';
 import 'package:opsmate/features/auth/domain/usecases/logout_usecase.dart';
@@ -103,7 +103,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
     } catch (e) {
-      print('Logout error: ${e.toString()}');
+      if (kDebugMode) {
+        print('Logout error: ${e.toString()}');
+      }
       emit(
         state.copyWith(
           status: AuthStatus.unauthenticated,
@@ -154,7 +156,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message: 'Google Signin successfull',
         ),
       );
-      print("""Google Signin Successful from auth bloc ${user.email}""");
+      if (kDebugMode) {
+        print('Google Signin Successful from auth bloc ${user.email}');
+      }
     } catch (e) {
       emit(
         state.copyWith(

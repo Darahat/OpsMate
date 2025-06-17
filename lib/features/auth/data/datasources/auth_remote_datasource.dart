@@ -38,15 +38,18 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithGoogle();
 }
 
+/// A concrete implementation of [AuthRemoteDataSource] using Firebase Authentication.
 class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
-  final firebase_auth.FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
+  /// Creates a [FirebaseAuthRemoteDataSource] instance.
 
   FirebaseAuthRemoteDataSource({
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
        _googleSignIn = googleSignIn ?? GoogleSignIn();
+
+  final firebase_auth.FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
 
   @override
   Future<UserModel> login(String email, String password) async {
@@ -67,7 +70,9 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
       }
 
       /// Registration Successfull
-      print('User logged in: ${userCredential.user?.email}');
+      if (kDebugMode) {
+        print('User logged in: ${userCredential.user?.email}');
+      }
 
       return _mapFirebaseUserToUserModel(userCredential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -94,8 +99,9 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
       if (userCredential.user == null) {
         throw ServerException(message: 'Registration failed: User is null');
       }
-      print('User registered: ${userCredential.user?.uid}');
-
+      if (kDebugMode) {
+        print('User registered: ${userCredential.user?.uid}');
+      }
       // Update the user's display name
       await userCredential.user!.updateDisplayName(name);
 
@@ -105,17 +111,21 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
       return _mapFirebaseUserToUserModel(updatedUser!);
     } on firebase_auth.FirebaseAuthException catch (e) {
-      print(
-        'Firebase Auth Exception during registration: ${e.code} - ${e.message}',
-      );
+      if (kDebugMode) {
+        print(
+          'Firebase Auth Exception during registration: ${e.code} - ${e.message}',
+        );
+      }
       // Special handling for reCAPTCHA issues
       if (e.code == 'captcha-check-failed' ||
           e.message?.contains('reCAPTCHA') == true) {
-        print(
-          'reCAPTCHA verification failed. Checking Firebase project configuration...',
-        );
-        // Log detailed information to help diagnose the issue
-        print('Device info: ${await _getDeviceInfo()}');
+        if (kDebugMode) {
+          print(
+            'reCAPTCHA verification failed. Checking Firebase project configuration...',
+          );
+          // Log detailed information to help diagnose the issue
+          print('Device info: ${await _getDeviceInfo()}');
+        }
         throw ServerException(
           message:
               'Authentication security check failed. Please ensure you have Google Play Services updated on your device.',
@@ -124,7 +134,9 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
 
       throw ServerException(message: _getErrorMessage(e));
     } catch (e) {
-      print('General Exception during registration: ${e.toString()}');
+      if (kDebugMode) {
+        print('General Exception during registration: ${e.toString()}');
+      }
       throw ServerException(message: 'Registration failed: ${e.toString()}');
     }
   }
@@ -146,7 +158,9 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
         await _googleSignIn.signOut();
       }
     } catch (e) {
-      print('Logout error: ${e.toString()}');
+      if (kDebugMode) {
+        print('Logout error: ${e.toString()}');
+      }
       throw ServerException(message: 'Logout failed: ${e.toString()}');
     }
   }

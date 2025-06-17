@@ -17,8 +17,7 @@ class ServerFailure extends Failure {
   /// Creates a [ServerFailure] with a message describing the server error.
   ///
   /// Optionally includes a [statusCode] from the HTTP response.
-  const ServerFailure({required String message, this.statusCode})
-    : super(message: message);
+  const ServerFailure({required super.message, this.statusCode});
 
   /// The HTTP status code associated with the failure, if available.
   final int? statusCode;
@@ -33,8 +32,7 @@ class ServerFailure extends Failure {
 /// Represents a failure that occurred when accessing local cache.
 class CacheFailure extends Failure {
   /// Creates a [CacheFailure] with a message describing the cache error.
-  const CacheFailure({required String message}) : super(message: message);
-
+  const CacheFailure({required super.message});
   @override
   String toString() => 'Cache error: $message';
 }
@@ -42,7 +40,7 @@ class CacheFailure extends Failure {
 /// Represents a failure due to network connectivity issues.
 class NetworkFailure extends Failure {
   /// Creates a [NetworkFailure] with a message describing the network error.
-  const NetworkFailure({required String message}) : super(message: message);
+  const NetworkFailure({required super.message});
 
   @override
   String toString() => 'Network error: $message';
@@ -54,9 +52,9 @@ class ValidationFailure extends Failure {
   ///
   /// Optionally includes a map of [fieldErrors] for specific field validation failures.
   const ValidationFailure({
-    required String message,
+    required super.message,
     this.fieldErrors = const {},
-  }) : super(message: message);
+  });
 
   /// A map of field names to error messages for field-specific validation errors.
   final Map<String, String> fieldErrors;
@@ -94,7 +92,7 @@ class NotFoundFailure extends Failure {
 /// Represents a failure due to authentication issues.
 class AuthFailure extends Failure {
   /// Creates an [AuthFailure] with a message describing the authentication error.
-  const AuthFailure({required String message}) : super(message: message);
+  const AuthFailure({required super.message});
 
   @override
   String toString() => 'Authentication error: $message';
@@ -103,8 +101,7 @@ class AuthFailure extends Failure {
 /// Represents a failure due to insufficient permissions.
 class PermissionFailure extends Failure {
   /// Creates a [PermissionFailure] with details about the permission that was denied.
-  const PermissionFailure({required this.permission, required String message})
-    : super(message: message);
+  const PermissionFailure({required this.permission, required super.message});
 
   /// The permission that was denied.
   final String permission;

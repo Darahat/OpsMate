@@ -10,11 +10,11 @@ abstract class NetworkInfo {
 /// Implementation of [NetworkInfo] using the connectivity_plus package
 @Injectable(as: NetworkInfo)
 class NetworkInfoImpl implements NetworkInfo {
-  /// The connectivity service used to check network status
-  final Connectivity connectivity;
-
   /// Creates a [NetworkInfoImpl] with the required [Connectivity] instance
   NetworkInfoImpl(this.connectivity);
+
+  /// The connectivity service used to check network status
+  final Connectivity connectivity;
 
   @override
   Future<bool> get isConnected async {

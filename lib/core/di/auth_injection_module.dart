@@ -61,6 +61,7 @@ abstract class AuthInjectionModule {
   RegisterUseCase get registerUseCase =>
       RegisterUseCase(getIt<AuthRepository>());
 
+  /// Registers [GoogleSignInUseCase] as a singleton, used to handle Google sign-in logic.
   @singleton
   GoogleSignInUseCase get googleSignInUseCase =>
       GoogleSignInUseCase(getIt<AuthRepository>());
