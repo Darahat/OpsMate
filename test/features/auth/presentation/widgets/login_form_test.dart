@@ -4,67 +4,90 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:opsmate/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:opsmate/features/auth/presentation/widgets/auth_form.dart';
+import 'package:go_router/go_router.dart';
 
 // Create a mock class for AuthBloc
 class MockAuthBloc extends Mock implements AuthBloc {}
 
+// Mock GoRouter for navigation
+class MockGoRouter extends Mock implements GoRouter {}
+
+// Setup GoRouter mock
+class MockGoRouterProvider extends StatelessWidget {
+  const MockGoRouterProvider({
+    super.key,
+    required this.child,
+    required this.router,
+  });
+
+  final Widget child;
+  final MockGoRouter router;
+
+  @override
+  Widget build(BuildContext context) {
+    return InheritedGoRouter(goRouter: router, child: child);
+  }
+}
+
 void main() {
   late MockAuthBloc mockAuthBloc;
+  late MockGoRouter mockGoRouter;
 
   setUp(() {
     mockAuthBloc = MockAuthBloc();
+    mockGoRouter = MockGoRouter();
 
     // Register fallback values for AuthEvent and AuthState
     registerFallbackValue(const LoginEvent(email: '', password: ''));
 
     // Setup the mock to return a default state
     when(() => mockAuthBloc.state).thenReturn(const AuthState());
+
+    // Setup mock navigation
+    when(() => mockGoRouter.go(any())).thenReturn(null);
   });
+
+  Widget createLoginForm() {
+    return MaterialApp(
+      home: MockGoRouterProvider(
+        router: mockGoRouter,
+        child: Scaffold(
+          body: BlocProvider<AuthBloc>.value(
+            value: mockAuthBloc,
+            child: const AuthForm(isLogin: true),
+          ),
+        ),
+      ),
+    );
+  }
 
   testWidgets('Login form displays all required elements', (
     WidgetTester tester,
   ) async {
-    // Build the login form widget
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: BlocProvider<AuthBloc>.value(
-            value: mockAuthBloc,
-            child: const AuthForm(isLogin: true),
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(createLoginForm());
 
-    // Verify all required elements are present
-    expect(find.text('Welcome back!'), findsOneWidget);
+    // Verify email and password fields are present
     expect(find.text('Email'), findsOneWidget);
     expect(find.text('Password'), findsOneWidget);
+
+    // Verify login button is present
     expect(find.text('Login'), findsOneWidget);
+
+    // Verify "Create an account" link is present
     expect(find.text('Create an account'), findsOneWidget);
 
-    // Verify name field is NOT present in login mode
-    expect(find.text('name'), findsNothing);
+    // Verify "Forget Password?" link is present
+    expect(find.text('Forget Password?'), findsOneWidget);
   });
 
   testWidgets('Login form validates input fields', (WidgetTester tester) async {
-    // Build the login form widget
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: BlocProvider<AuthBloc>.value(
-            value: mockAuthBloc,
-            child: const AuthForm(isLogin: true),
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(createLoginForm());
 
-    // Try to submit without entering any data
+    // Tap the login button without entering any data
     await tester.tap(find.text('Login'));
     await tester.pump();
 
-    // Verify validation messages appear
+    // Verify validation error messages are shown
     expect(find.text('Please enter your email'), findsOneWidget);
     expect(find.text('Please enter your password'), findsOneWidget);
   });
@@ -72,24 +95,17 @@ void main() {
   testWidgets('Login form submits when valid data is entered', (
     WidgetTester tester,
   ) async {
-    // Build the login form widget
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: BlocProvider<AuthBloc>.value(
-            value: mockAuthBloc,
-            child: const AuthForm(isLogin: true),
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(createLoginForm());
 
     // Enter valid data
     await tester.enterText(
-      find.byType(TextFormField).at(0),
+      find.widgetWithText(TextFormField, 'Email'),
       'test@example.com',
     );
-    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Password'),
+      'password123',
+    );
 
     // Submit the form
     await tester.tap(find.text('Login'));

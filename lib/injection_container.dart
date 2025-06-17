@@ -20,6 +20,7 @@ final getIt = GetIt.instance;
 /// they are available immediately when needed.
 Future<void> configureDependencies() async {
   // Reset if any of our dependencies are already registered (hot restart scenario)
+
   if (getIt.isRegistered<AuthRemoteDataSource>() ||
       getIt.isRegistered<AuthRepository>() ||
       getIt.isRegistered<AuthBloc>()) {
