@@ -3,6 +3,9 @@ import 'package:opsmate/injection_container.dart';
 import 'package:opsmate/core/utils/test_service.dart';
 import 'package:opsmate/core/utils/logger.dart';
 import 'package:mocktail/mocktail.dart';
+import 'dart:io';
+import 'package:hive/hive.dart'; // Not hive_flutter
+import 'package:path/path.dart' as path;
 
 // Mock dependencies that might cause issues in tests
 class MockFirebaseApp extends Mock {}
@@ -15,6 +18,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
+    ///  Initialize Hive for testing
+
+    final tempDir = Directory.systemTemp.createTempSync();
+    Hive.init(path.join(tempDir.path, 'hive_testing'));
+
     // Initialize mocks for Firebase and other external dependencies
     // that might be causing issues in the test environment
     getIt.registerSingleton<MockFirebaseApp>(MockFirebaseApp());
