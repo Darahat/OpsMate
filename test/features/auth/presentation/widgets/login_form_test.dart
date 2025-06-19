@@ -42,11 +42,18 @@ void main() {
 
     // Setup the mock to return a default state
     when(() => mockAuthBloc.state).thenReturn(const AuthState());
+    when(
+      () => mockAuthBloc.stream,
+    ).thenAnswer((_) => const Stream<AuthState>.empty());
 
     // Setup mock navigation
     when(() => mockGoRouter.go(any())).thenReturn(null);
   });
-
+  tearDown(() {
+    // Ensure proper cleanup after each test
+    reset(mockAuthBloc);
+    reset(mockGoRouter);
+  });
   Widget createLoginForm() {
     return MaterialApp(
       home: MockGoRouterProvider(
@@ -65,6 +72,7 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(createLoginForm());
+    await tester.pumpAndSettle();
 
     // Verify email and password fields are present
     expect(find.text('Email'), findsOneWidget);
@@ -82,6 +90,7 @@ void main() {
 
   testWidgets('Login form validates input fields', (WidgetTester tester) async {
     await tester.pumpWidget(createLoginForm());
+    await tester.pumpAndSettle();
 
     // Tap the login button without entering any data
     await tester.tap(find.text('Login'));
@@ -96,12 +105,15 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(createLoginForm());
-
+    // Pump after each text entry
+    await tester.pump();
     // Enter valid data
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Email'),
       'test@example.com',
     );
+    await tester.pump();
+
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Password'),
       'password123',

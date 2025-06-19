@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'dart:io';
 import 'package:hive/hive.dart'; // Not hive_flutter
 import 'package:path/path.dart' as path;
+import 'package:firebase_core/firebase_core.dart';
 
 // Mock dependencies that might cause issues in tests
 class MockFirebaseApp extends Mock {}
@@ -15,9 +16,12 @@ class MockFirebaseAuth extends Mock {}
 class MockGoogleSignIn extends Mock {}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    /// Required for Firebase Auth
+    await Firebase.initializeApp(); // ✅ Required for FirebaseAuth.instance
+
     ///  Initialize Hive for testing
 
     final tempDir = Directory.systemTemp.createTempSync();
