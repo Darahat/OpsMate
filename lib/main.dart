@@ -1,10 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:opsmate/app.dart';
+import 'package:opsmate/core/services/hive_service.dart';
 
-import 'features/auth/domain/user_model.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -12,11 +11,9 @@ Future<void> main() async {
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   // Initialize Hive
-  await Hive.initFlutter();
-  Hive.registerAdapter(UserModelAdapter());
-  await Hive.openBox<UserModel>('authBox');
+  await HiveService.init();
+
   runApp(const ProviderScope(child: App()));
 }
-
-/// The root widget of the OpsMate application.
