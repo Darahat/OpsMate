@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // for playing system sound
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opsmate/app/theme/app_colors.dart';
+import 'package:opsmate/features/tasks/application/task_controller.dart';
 import 'package:opsmate/features/tasks/presentation/widgets/showAddTaskDialog.dart';
 import 'package:opsmate/features/tasks/provider/task_providers.dart';
 
+/// Main Task dashboard
 class TaskDashboard extends ConsumerStatefulWidget {
+  /// Main Task Dashboard constructor
   const TaskDashboard({super.key});
 
   @override
@@ -12,28 +16,12 @@ class TaskDashboard extends ConsumerStatefulWidget {
 }
 
 class _TaskDashboardState extends ConsumerState<TaskDashboard> {
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchTasks();
-  }
-
-  Future<void> _fetchTasks() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await ref.read(taskControllerProvider.notifier).getTask();
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(taskLoadingProvider);
     final tasks = ref.watch(taskControllerProvider);
-    print(tasks);
+    final isRecording = ref.watch(isListeningProvider);
+
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(title: const Text('AI Planner')),
@@ -87,7 +75,7 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
             const SizedBox(height: 16),
             Expanded(
               child:
-                  _isLoading
+                  isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : ListView.builder(
                         itemCount: tasks.length,
@@ -108,7 +96,6 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                         },
                       ),
             ),
-            const SizedBox(height: 10),
             FractionallySizedBox(
               widthFactor: 1.0,
               child: ElevatedButton(
@@ -120,6 +107,23 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
               ),
             ),
             const SizedBox(height: 20),
+            if (isRecording)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.fiber_manual_record,
+                      color: Colors.red,
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Text('Listening...', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+
             Center(
               child: Container(
                 width: 68,
@@ -138,25 +142,39 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                     ),
                   ],
                 ),
+
                 child: Material(
                   type: MaterialType.transparency,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(34), // Half of 68
                     onTap: () async {
-                      // TODO: Add voice-to-text logic
+                      final voiceService = ref.read(voiceToTextProvider);
+                      ref.read(isListeningProvider.notifier).state = true;
+
+                      SystemSound.play(SystemSoundType.click); //Bip on start
+                      final text = await voiceService.listenForText();
+                      ref.read(isListeningProvider.notifier).state = false;
+                      SystemSound.play(SystemSoundType.alert); //Bip on start
+
+                      if (text != null && text.isNotEmpty) {
+                        await ref
+                            .read(taskControllerProvider.notifier)
+                            .addTask(text);
+                      }
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(5), // Border width
                       child: Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColor.accentDark,
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.mic,
                             size: 30,
-                            color: AppColor.buttonText,
+                            color:
+                                isRecording ? Colors.red : AppColor.buttonText,
                           ),
                         ),
                       ),
