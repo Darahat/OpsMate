@@ -10,8 +10,10 @@ class TaskRepository {
       tid: DateTime.now().microsecondsSinceEpoch.toInt(),
       title: text,
       isCompleted: false,
-      task_creation_time: DateTime.now().toString(),
+      taskCreationTime: DateTime.now().toString(),
     );
+    _tasks.add(task); // <-- Add this line to save the task!
+
     return task;
   }
 

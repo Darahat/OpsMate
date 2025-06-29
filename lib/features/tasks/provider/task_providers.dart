@@ -5,7 +5,9 @@ import '../domain/task_model.dart';
 import '../infrastructure/Task_repository.dart';
 
 /// Provides an instance of TaskRepository.
-final taskRepositoryProvider = Provider((ref) => TaskRepository());
+final taskRepositoryProvider = Provider<TaskRepository>(
+  (ref) => TaskRepository(),
+);
 
 /// Provides the TaskController and exposes the list of tasks.
 

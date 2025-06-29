@@ -19,26 +19,26 @@ class TaskModel {
 
   /// third required field for login
   @HiveField(3)
-  final String? task_creation_time;
+  final String? taskCreationTime;
 
   /// its contstruct of UserModel class . its for call UserModel to other dart file.  this.name is not required
   TaskModel({
     this.tid,
     this.title,
     required this.isCompleted,
-    this.task_creation_time,
+    this.taskCreationTime,
   });
   TaskModel copyWith({
     int? tid,
     String? title,
     bool? isCompleted,
-    String? task_creation_time,
+    String? taskCreationTime,
   }) {
     return TaskModel(
       tid: tid ?? this.tid,
       title: title ?? this.title,
       isCompleted: isCompleted ?? this.isCompleted,
-      task_creation_time: task_creation_time ?? this.task_creation_time,
+      taskCreationTime: taskCreationTime ?? this.taskCreationTime,
     );
   }
 }

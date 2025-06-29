@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opsmate/app/theme/app_colors.dart';
+import 'package:opsmate/features/tasks/presentation/widgets/showAddTaskDialog.dart';
 import 'package:opsmate/features/tasks/provider/task_providers.dart';
 
 class TaskDashboard extends ConsumerStatefulWidget {
@@ -32,6 +33,7 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
   @override
   Widget build(BuildContext context) {
     final tasks = ref.watch(taskControllerProvider);
+    print(tasks);
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(title: const Text('AI Planner')),
@@ -94,8 +96,8 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                           return CheckboxListTile(
                             title: Text(task.title ?? ''),
                             subtitle:
-                                task.task_creation_time != null
-                                    ? Text(task.task_creation_time!)
+                                task.taskCreationTime != null
+                                    ? Text(task.taskCreationTime!)
                                     : null,
                             value: task.isCompleted,
                             onChanged:
@@ -107,27 +109,60 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                       ),
             ),
             const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                ref
-                    .read(taskControllerProvider.notifier)
-                    .addTask("New Sample Task");
-              },
-              child: const Text("+ New Task"),
+            FractionallySizedBox(
+              widthFactor: 1.0,
+              child: ElevatedButton(
+                style: ButtonStyle(),
+                onPressed: () async {
+                  showAddTaskDialog(context, ref);
+                },
+                child: const Text("+ New Task"),
+              ),
             ),
             const SizedBox(height: 20),
             Center(
-              child: FloatingActionButton(
-                onPressed: () async {
-                  // TODO: Add voice-to-text logic here
-                },
-                backgroundColor: Colors.white,
-                foregroundColor: AppColor.primary,
-                shape: const CircleBorder(
-                  side: BorderSide(color: AppColor.primary, width: 2),
+              child: Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [AppColor.buttonText, AppColor.accent],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                elevation: 4,
-                child: const Icon(Icons.mic),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(34), // Half of 68
+                    onTap: () async {
+                      // TODO: Add voice-to-text logic
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(5), // Border width
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColor.accentDark,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.mic,
+                            size: 30,
+                            color: AppColor.buttonText,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
