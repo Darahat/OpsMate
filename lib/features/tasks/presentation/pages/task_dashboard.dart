@@ -27,10 +27,11 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
     @override
     void initState() {
       super.initState();
+
       // Load tasks after widget tree builds
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(taskControllerProvider.notifier).getTask();
-      });
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   ref.read(taskControllerProvider.notifier).getTask();
+      // });
     }
 
     return Scaffold(
@@ -97,27 +98,31 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child:
-                  isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
-                        itemCount: tasks.length,
-                        itemBuilder: (context, index) {
-                          final task = tasks[index];
-                          return CheckboxListTile(
-                            title: Text(task.title ?? ''),
-                            subtitle:
-                                task.taskCreationTime != null
-                                    ? Text(task.taskCreationTime!)
-                                    : null,
-                            value: task.isCompleted,
-                            onChanged:
-                                (val) => ref
-                                    .read(taskControllerProvider.notifier)
-                                    .toggleTask(task.tid!),
-                          );
-                        },
-                      ),
+              child: RefreshIndicator(
+                onRefresh:
+                    () => ref.read(taskControllerProvider.notifier).getTask(),
+                child:
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                          itemCount: tasks.length,
+                          itemBuilder: (context, index) {
+                            final task = tasks[index];
+                            return CheckboxListTile(
+                              title: Text(task.title ?? ''),
+                              subtitle:
+                                  task.taskCreationTime != null
+                                      ? Text(task.taskCreationTime!)
+                                      : null,
+                              value: task.isCompleted,
+                              onChanged:
+                                  (val) => ref
+                                      .read(taskControllerProvider.notifier)
+                                      .toggleTask(task.tid!),
+                            );
+                          },
+                        ),
+              ),
             ),
             FractionallySizedBox(
               widthFactor: 1.0,
