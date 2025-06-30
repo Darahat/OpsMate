@@ -38,7 +38,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-
+  google_fonts: ^6.2.1
   #Navigation
   go_router: ^15.1.2
 
@@ -54,14 +54,16 @@ dependencies:
 
   #Ai Integration
   http: ^1.4.0 #LightWeight HTTP requests
+  path: ^1.9.1
+  flutter_dotenv: ^5.2.1
 
   #Voice Recognition
   speech_to_text: ^7.0.0 # Converts voice to text
   permission_handler: ^12.0.0+1 #Runtime Permissions
-
   # Audio Recording
   record: ^6.0.0 #Audio Recorder
   path_provider: ^2.1.5 #Access device paths
+  provider: ^6.1.5
 
   #Dependency Injection
   get_it: ^8.0.3
@@ -78,9 +80,7 @@ dependencies:
   firebase_auth: ^5.6.0
   cloud_firestore: ^5.6.9
   google_sign_in: ^6.3.0
-  path: ^1.9.1
-  google_fonts: ^6.2.1
-  provider: ^6.1.5
+
 #---------------------------
 #Development Dependencies
 #---------------------------
@@ -117,6 +117,7 @@ flutter:
   assets:
     - assets/icon/icon.png
     - assets/icon/google_logo.png
+    - .env
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

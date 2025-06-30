@@ -3,60 +3,53 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../features/auth/domain/user_model.dart';
 import '../../features/tasks/domain/task_model.dart';
 
-/// Hive service functionality isolated from main
 class HiveService {
-  /// AuthBox name defined
   static const String authBoxName = 'authbox';
-  static Box<UserModel>? _authBox;
-
-  /// TaskBox hive name defined
   static const String taskBoxName = 'taskbox';
-  static Box<TaskModel>? _taskBox;
 
-  /// main hive service initialization function
+  static bool _initialized = false;
+
   static Future<void> init() async {
-    await Hive.initFlutter();
+    if (_initialized) return;
 
-    /// User Authentication registration and check box is open or not
-    Hive.registerAdapter(UserModelAdapter());
+    try {
+      await Hive.initFlutter();
 
-    if (!Hive.isBoxOpen(authBoxName)) {
-      _authBox = await Hive.openBox<UserModel>(authBoxName);
-    } else {
-      _authBox = Hive.box<UserModel>(authBoxName);
-    }
+      if (!Hive.isAdapterRegistered(0)) {
+        Hive.registerAdapter(UserModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(1)) {
+        Hive.registerAdapter(TaskModelAdapter());
+      }
 
-    /// Task registration and check box is open or not
+      await Hive.openBox<UserModel>(authBoxName);
+      await Hive.openBox<TaskModel>(taskBoxName);
 
-    Hive.registerAdapter(TaskModelAdapter());
-
-    if (!Hive.isBoxOpen(taskBoxName)) {
-      _taskBox = await Hive.openBox<TaskModel>(taskBoxName);
-    } else {
-      _taskBox = Hive.box<TaskModel>(taskBoxName);
+      _initialized = true;
+    } catch (e) {
+      _initialized = false;
+      rethrow;
     }
   }
 
-  /// return a check is authBox is open or not
+  static Future<void> _closeAllBoxes() async {
+    try {
+      if (Hive.isBoxOpen(authBoxName)) await Hive.box(authBoxName).close();
+      if (Hive.isBoxOpen(taskBoxName)) await Hive.box(taskBoxName).close();
+    } catch (_) {}
+  }
 
   static Box<UserModel> get authBox {
-    if (_authBox == null) {
-      throw Exception('HiveService not initialized. Call init() first');
-    }
-    return _authBox!;
+    _checkInitialized();
+    return Hive.box<UserModel>(authBoxName);
   }
 
-  /// return a check is taskbox is open or not
   static Box<TaskModel> get taskBox {
-    if (_taskBox == null) {
-      throw Exception('HiveService not initialized. Call init() first');
-    }
-    return _taskBox!;
+    _checkInitialized();
+    return Hive.box<TaskModel>(taskBoxName);
   }
 
-  /// close function for close all hive boxes
-  static Future<void> close() async {
-    await _authBox?.close();
-    await _taskBox?.close();
+  static void _checkInitialized() {
+    if (!_initialized) throw Exception('HiveService not initialized');
   }
 }

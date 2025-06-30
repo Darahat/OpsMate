@@ -21,6 +21,17 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
     final isLoading = ref.watch(taskLoadingProvider);
     final tasks = ref.watch(taskControllerProvider);
     final isRecording = ref.watch(isListeningProvider);
+    final taskTitles =
+        tasks.isEmpty ? '' : tasks.map((t) => '- ${t.title}').join('\n');
+    final summaryAsync = ref.watch(aiSummaryProvider(taskTitles));
+    @override
+    void initState() {
+      super.initState();
+      // Load tasks after widget tree builds
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(taskControllerProvider.notifier).getTask();
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColor.background,
@@ -58,17 +69,29 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                 color: const Color(0xFFF4F1FF),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "AI-Generated Summary",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Meeting with design-team is scheduled for 10 AM, Prepare presentation for project kickoff.",
-                  ),
+                  const SizedBox(height: 8),
+                  if (tasks.isEmpty)
+                    const Text("No tasks available to summarize.")
+                  else
+                    summaryAsync.when(
+                      data: (summary) => Text(summary),
+                      loading:
+                          () => const Padding(
+                            padding: EdgeInsets.only(top: 8.0),
+                            child: Text("Generating summary..."),
+                          ),
+                      error:
+                          (e, _) => const Text(
+                            "Unable to generate summary. Please try again.",
+                          ),
+                    ),
                 ],
               ),
             ),
@@ -91,7 +114,7 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                             onChanged:
                                 (val) => ref
                                     .read(taskControllerProvider.notifier)
-                                    .toggleTask(index),
+                                    .toggleTask(task.tid!),
                           );
                         },
                       ),

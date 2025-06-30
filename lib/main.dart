@@ -12,8 +12,17 @@ Future<void> main() async {
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize Hive
-  await HiveService.init();
+  // Initialize Hive with error handling
+  try {
+    await HiveService.init();
+  } catch (e) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(body: Center(child: Text('Initialization failed: $e'))),
+      ),
+    );
+    return;
+  }
 
   runApp(const ProviderScope(child: App()));
 }

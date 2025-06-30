@@ -1,50 +1,51 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/task_model.dart';
-import '../infrastructure/Task_repository.dart';
+import '../infrastructure/task_repository.dart';
 
+/// Used to indicate loading status in the UI
 final taskLoadingProvider = StateProvider<bool>((ref) => false);
 
-/// this class is calling Task_repository model functions
-///
-/// and put user data to hive box and changin state value
+/// Main Task Controller connected to Hive-backed TaskRepository
 class TaskController extends StateNotifier<List<TaskModel>> {
   final TaskRepository _repo;
   final Ref ref;
 
-  TaskController(this._repo, this.ref) : super(_repo.getTasks());
+  TaskController(this._repo, this.ref) : super([]);
 
-  /// addTask controller calling addTask repository and set state
+  /// Load all tasks from repository
   Future<void> getTask() async {
     ref.read(taskLoadingProvider.notifier).state = true;
-    await _repo.getTasks();
-    state = _repo.getTasks();
+
+    final tasks = await _repo.getTasks();
+    state = tasks;
+
     ref.read(taskLoadingProvider.notifier).state = false;
   }
 
-  /// addTask controller calling addTask repository and set state
+  /// Add a new task and reload list
   Future<void> addTask(String text) async {
     final task = await _repo.addTask(text);
     if (task != null) {
-      state = _repo.getTasks();
+      await getTask(); // reload state
     }
   }
 
-  /// edit task controller calling edittask repository and set state
-  Future<void> toggleTask(int id) async {
+  /// Toggle a task and reload list
+  Future<void> toggleTask(String id) async {
     await _repo.toggleTask(id);
-    state = _repo.getTasks();
+    await getTask();
   }
 
-  /// removeTask controller calling removeTask repository and set state
-  Future<void> removeTask(int id) async {
+  /// Remove a task and reload list
+  Future<void> removeTask(String id) async {
     await _repo.removeTask(id);
-    state = _repo.getTasks();
+    await getTask();
   }
 
-  /// edit task controller calling edittask repository and set state
-  Future<void> editTask(int id, String newText) async {
+  /// Edit a task and reload list
+  Future<void> editTask(String id, String newText) async {
     await _repo.editTask(id, newText);
-    state = _repo.getTasks();
+    await getTask();
   }
 }

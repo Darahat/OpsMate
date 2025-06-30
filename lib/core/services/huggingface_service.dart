@@ -1,0 +1,43 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+
+class HuggingfaceService {
+  static final _apiKey = dotenv.env['HUGGING_FACE_API_KEY']!;
+  static const _endpoint = 'https://api.openrouter.ai/v1/chat/completions';
+
+  Future<String> generateSummary(String taskList) async {
+    final response = await http.post(
+      Uri.parse(_endpoint),
+      headers: {
+        'Authorization': 'Bearer $_apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "model": "mistral/mistral-7b-instruct",
+        "messages": [
+          {
+            "role": "system",
+            "content":
+                "You are a helpful assistant that generates task summaries and plans.",
+          },
+          {
+            "role": "user",
+            "content":
+                "Based on the following task list, generate a summary and suggest smart daily plan:\n$taskList",
+          },
+        ],
+        "temperature": 0.7,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['choices'][0]['message']['content'];
+    } else {
+      throw Exception('Failed to get response from Mistral');
+    }
+  }
+}

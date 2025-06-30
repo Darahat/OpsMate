@@ -1,45 +1,44 @@
-import 'package:opsmate/features/tasks/domain/task_model.dart';
+import 'package:hive/hive.dart';
+import 'package:opsmate/core/services/hive_service.dart';
 
-/// this is the file where auth_controller connect with repositories
+import '../domain/task_model.dart';
+
 class TaskRepository {
-  final List<TaskModel> _tasks = [];
+  Box<TaskModel> get _box => HiveService.taskBox;
 
-  /// Add a new task
+  Future<List<TaskModel>> getTasks() async {
+    return _box.values.toList();
+  }
+
   Future<TaskModel?> addTask(String text) async {
+    final key = DateTime.now().millisecondsSinceEpoch.toString();
     final task = TaskModel(
-      tid: DateTime.now().microsecondsSinceEpoch.toInt(),
+      tid: key,
       title: text,
       isCompleted: false,
-      taskCreationTime: DateTime.now().toString(),
+      taskCreationTime: DateTime.now().toIso8601String(),
     );
-    _tasks.add(task); // <-- Add this line to save the task!
-
+    await _box.put(key, task);
     return task;
   }
 
-  /// Toggle Task Completion
-  Future<void> toggleTask(int tid) async {
-    final index = _tasks.indexWhere((task) => task.tid == tid);
-    if (index != -1) {
-      _tasks[index] = _tasks[index].copyWith(
-        isCompleted: !_tasks[index].isCompleted,
-      );
+  Future<void> toggleTask(String tid) async {
+    final task = _box.get(tid);
+    if (task != null) {
+      final updated = task.copyWith(isCompleted: !task.isCompleted);
+      await _box.put(tid, updated);
     }
   }
 
-  /// Remove a Task
-  Future<void> removeTask(int id) async {
-    _tasks.removeWhere((task) => task.tid == id);
+  Future<void> removeTask(String tid) async {
+    await _box.delete(tid);
   }
 
-  /// Edit a task
-  Future<void> editTask(int id, String newText) async {
-    final index = _tasks.indexWhere((task) => task.tid == id);
-    if (index != -1) {
-      _tasks[index] = _tasks[index].copyWith(title: newText);
+  Future<void> editTask(String tid, String newText) async {
+    final task = _box.get(tid);
+    if (task != null) {
+      final updated = task.copyWith(title: newText);
+      await _box.put(tid, updated);
     }
   }
-
-  /// Get All Tasks
-  List<TaskModel> getTasks() => List.unmodifiable(_tasks);
 }

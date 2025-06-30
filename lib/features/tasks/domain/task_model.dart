@@ -7,7 +7,7 @@ part 'task_model.g.dart';
 class TaskModel {
   /// first field for the hive/table is uid
   @HiveField(0)
-  final int? tid;
+  final String? tid;
 
   /// second non required field
   @HiveField(1)
@@ -29,7 +29,7 @@ class TaskModel {
     this.taskCreationTime,
   });
   TaskModel copyWith({
-    int? tid,
+    String? tid,
     String? title,
     bool? isCompleted,
     String? taskCreationTime,
