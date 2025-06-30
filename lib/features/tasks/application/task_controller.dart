@@ -11,7 +11,9 @@ class TaskController extends StateNotifier<List<TaskModel>> {
   final TaskRepository _repo;
   final Ref ref;
 
-  TaskController(this._repo, this.ref) : super([]);
+  TaskController(this._repo, this.ref) : super([]) {
+    Future.microtask(() => getTask());
+  }
 
   /// Load all tasks from repository
   Future<void> getTask() async {
@@ -32,8 +34,8 @@ class TaskController extends StateNotifier<List<TaskModel>> {
   }
 
   /// Toggle a task and reload list
-  Future<void> toggleTask(String id) async {
-    await _repo.toggleTask(id);
+  Future<void> toggleTask(String tid) async {
+    await _repo.toggleTask(tid);
     await getTask();
   }
 
