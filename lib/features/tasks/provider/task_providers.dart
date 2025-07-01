@@ -28,8 +28,7 @@ final taskControllerProvider =
 
 /// taking only those tasks which are incomplete
 final incompleteTasksProvider = Provider<List<TaskModel>>((ref) {
-  final allTasks = ref.watch(taskControllerProvider);
-  return allTasks.where((task) => task.isCompleted == false).toList();
+  return ref.watch(taskControllerProvider);
 });
 
 /// Mistral AI summary service
@@ -38,7 +37,7 @@ final mistralServiceProvider = Provider((ref) => MistralService());
 /// Async summary from Mistral for task list
 /// Async summary from Mistral for incomplete tasks
 final aiSummaryProvider = FutureProvider<String>((ref) async {
-  final tasks = ref.watch(incompleteTasksProvider); // watches changes
+  final tasks = ref.watch(incompleteTasksProvider);
   final taskTitles =
       tasks.isEmpty ? '' : tasks.map((t) => '- ${t.title}').join('\n');
 

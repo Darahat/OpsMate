@@ -20,7 +20,7 @@ class TaskController extends StateNotifier<List<TaskModel>> {
     ref.read(taskLoadingProvider.notifier).state = true;
 
     final tasks = await _repo.getTasks();
-    state = tasks;
+    state = tasks.where((task) => task.isCompleted == false).toList();
 
     ref.read(taskLoadingProvider.notifier).state = false;
   }

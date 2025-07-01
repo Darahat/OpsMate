@@ -14,7 +14,7 @@ class _AISummaryWidgetState extends ConsumerState<AISummaryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final tasks = ref.watch(taskControllerProvider);
+    final tasks = ref.watch(incompleteTasksProvider);
 
     final summaryAsync = ref.watch(aiSummaryProvider);
     return Container(
