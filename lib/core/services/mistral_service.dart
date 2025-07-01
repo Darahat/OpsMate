@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-class HuggingfaceService {
-  static final _apiKey = dotenv.env['HUGGING_FACE_API_KEY']!;
-  static const _endpoint = 'https://api.openrouter.ai/v1/chat/completions';
+class MistralService {
+  static final _apiKey = dotenv.env['OPENROUTER_AI_API_KEY']!;
+  static const _endpoint = 'https://openrouter.ai/api/v1/chat/completions';
 
   Future<String> generateSummary(String taskList) async {
     final response = await http.post(
@@ -16,7 +16,7 @@ class HuggingfaceService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        "model": "mistral/mistral-7b-instruct",
+        "model": "mistralai/mistral-7b-instruct:free",
         "messages": [
           {
             "role": "system",
@@ -37,7 +37,10 @@ class HuggingfaceService {
       final data = jsonDecode(response.body);
       return data['choices'][0]['message']['content'];
     } else {
-      throw Exception('Failed to get response from Mistral');
+      print('Mistral API error: ${response.statusCode} ${response.body}');
+      throw Exception(
+        'Failed to get response from Mistral: ${response.statusCode} ${response.body}',
+      );
     }
   }
 }

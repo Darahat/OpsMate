@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opsmate/core/services/huggingface_service.dart';
+import 'package:opsmate/core/services/mistral_service.dart';
 import 'package:opsmate/core/services/voice_to_text_service.dart';
 
 import '../application/task_controller.dart';
@@ -27,7 +27,7 @@ final taskControllerProvider =
     });
 
 /// Mistral AI summary service
-final mistralServiceProvider = Provider((ref) => HuggingfaceService());
+final mistralServiceProvider = Provider((ref) => MistralService());
 
 /// Async summary from Mistral for task list
 final aiSummaryProvider = FutureProvider.family<String, String>((
