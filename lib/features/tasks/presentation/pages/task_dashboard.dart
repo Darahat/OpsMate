@@ -19,23 +19,8 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(taskLoadingProvider);
-    final tasks = ref.watch(taskControllerProvider);
+    final tasks = ref.watch(incompleteTasksProvider);
     final isRecording = ref.watch(isListeningProvider);
-    final taskTitles =
-        tasks.isEmpty ? '' : tasks.map((t) => '- ${t.title}').join('\n');
-
-    final summaryAsync = ref.watch(aiSummaryProvider(taskTitles));
-    // print(summaryAsync);
-
-    @override
-    void initState() {
-      super.initState();
-
-      // Load tasks after widget tree builds
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   ref.read(taskControllerProvider.notifier).getTask();
-      // });
-    }
 
     return Scaffold(
       backgroundColor: AppColor.background,

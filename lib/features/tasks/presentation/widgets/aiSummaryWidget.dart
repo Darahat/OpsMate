@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opsmate/features/tasks/provider/task_providers.dart';
 
@@ -11,12 +10,13 @@ class AISummaryWidget extends ConsumerStatefulWidget {
 }
 
 class _AISummaryWidgetState extends ConsumerState<AISummaryWidget> {
+  bool isExpandedAiSummury = false;
+
   @override
   Widget build(BuildContext context) {
     final tasks = ref.watch(taskControllerProvider);
-    final taskTitles =
-        tasks.isEmpty ? '' : tasks.map((t) => '- ${t.title}').join('\n');
-    final summaryAsync = ref.watch(aiSummaryProvider(taskTitles));
+
+    final summaryAsync = ref.watch(aiSummaryProvider);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -35,7 +35,31 @@ class _AISummaryWidgetState extends ConsumerState<AISummaryWidget> {
             const Text("No tasks available to summarize.")
           else
             summaryAsync.when(
-              data: (summary) => Text(summary),
+              data: (summary) {
+                final showToggle = summary.length > 200;
+                final displayText =
+                    isExpandedAiSummury
+                        ? summary
+                        : '${summary.substring(0, 200)}...';
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(displayText),
+
+                    if (showToggle)
+                      TextButton(
+                        onPressed: () {
+                          setState(
+                            () => isExpandedAiSummury = !isExpandedAiSummury,
+                          );
+                        },
+                        child: Text(
+                          isExpandedAiSummury ? "See Less" : "See More",
+                        ),
+                      ),
+                  ],
+                );
+              },
               loading:
                   () => const Padding(
                     padding: EdgeInsets.only(top: 8.0),
