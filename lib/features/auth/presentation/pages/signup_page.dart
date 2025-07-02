@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../provider/auth_providers.dart';
 
-class SignUpPage extends ConsumerWidget {
+class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends ConsumerState<SignUpPage> {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(authControllerProvider.notifier);
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
@@ -47,25 +63,41 @@ class SignUpPage extends ConsumerWidget {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () async {
-                await controller.signUp(
-                  nameController.text.trim(),
-                  emailController.text.trim(),
-                  passwordController.text.trim(),
-                );
-
-                /// Navigate if user is set
-                if (ref.read(authControllerProvider) != null) {
-                  if (context.mounted) {
-                    Navigator.pushReplacementNamed(context, '/tasks');
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sign Up Failed')),
+                if (_isLoading) return;
+                setState(() {
+                  _isLoading = true;
+                });
+                try {
+                  await controller.signUp(
+                    emailController.text.trim(),
+                    passwordController.text.trim(),
+                    nameController.text.trim(),
                   );
+
+                  /// If login successful, navigate to /tasks
+                  if (ref.read(authControllerProvider) != null) {
+                    if (context.mounted) {
+                      context.go('/tasks');
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Google Sign in failed')),
+                    );
+                  }
+                } catch (e) {
+                  print(e);
+                } finally {
+                  if (mounted) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
                 }
               },
-
-              child: const Text("Sign Up"),
+              child:
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text("Sign Up"),
             ),
             const SizedBox(height: 15),
             TextButton(

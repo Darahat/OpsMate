@@ -55,7 +55,7 @@ class _MicButtonWidgetState extends ConsumerState<MicButtonWidget> {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColor.accentDark,
+                color: Theme.of(context).colorScheme.primary,
               ),
               child: Center(
                 child: Icon(

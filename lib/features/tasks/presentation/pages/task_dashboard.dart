@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:opsmate/app/theme/app_colors.dart';
+import 'package:opsmate/features/auth/provider/auth_providers.dart';
 import 'package:opsmate/features/tasks/application/task_controller.dart';
 import 'package:opsmate/features/tasks/presentation/widgets/aiSummaryWidget.dart';
 import 'package:opsmate/features/tasks/presentation/widgets/floatingbuttonwidget.dart';
@@ -21,15 +24,31 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
     final isLoading = ref.watch(taskLoadingProvider);
     final tasks = ref.watch(incompleteTasksProvider);
     final isRecording = ref.watch(isListeningProvider);
+    final auth = ref.read(authControllerProvider.notifier);
 
     return Scaffold(
       backgroundColor: AppColor.background,
-      appBar: AppBar(title: const Text('AI Planner')),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () async {
+            await auth.signOut();
+            if (ref.read(authControllerProvider) == null) {
+              context.go('/tasks');
+            } else {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Logout Failed')));
+            }
+          },
+          icon: const Icon(Icons.logout),
+        ),
+        title: const Text('OpsMate'),
+      ),
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -43,16 +62,17 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
-                      children: const [
-                        Icon(
+                      children: [
+                        const Icon(
                           Icons.calendar_today_outlined,
                           size: 20,
                           color: Colors.black87,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
+
                         Text(
-                          'April 24, 2024',
-                          style: TextStyle(color: Colors.black87),
+                          DateFormat('MMMM d, yyyy').format(DateTime.now()),
+                          style: const TextStyle(color: Colors.black87),
                         ),
                       ],
                     ),

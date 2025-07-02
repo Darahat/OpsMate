@@ -4,14 +4,28 @@ import 'package:go_router/go_router.dart';
 
 import '../../provider/auth_providers.dart';
 
-class LoginPage extends ConsumerWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends ConsumerState<LoginPage> {
+  bool _isLoading = false;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(authControllerProvider.notifier);
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -79,20 +93,34 @@ class LoginPage extends ConsumerWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    controller.signIn(
-                      emailController.text.trim(),
-                      passwordController.text.trim(),
-                    );
-
-                    /// If login successful, navigate to /tasks
-                    if (ref.read(authControllerProvider) != null) {
-                      if (context.mounted) {
-                        Navigator.pushReplacementNamed(context, '/tasks');
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Login Failed')),
+                    if (_isLoading) return;
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    try {
+                      controller.signIn(
+                        emailController.text.trim(),
+                        passwordController.text.trim(),
                       );
+
+                      /// If login successful, navigate to /tasks
+                      if (ref.read(authControllerProvider) != null) {
+                        if (context.mounted) {
+                          context.go('/tasks');
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Login Failed')),
+                        );
+                      }
+                    } catch (e) {
+                      print(e);
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
                     }
                   },
                   child: const Text('Sign In'),
@@ -125,19 +153,34 @@ class LoginPage extends ConsumerWidget {
               const SizedBox(height: 24),
               OutlinedButton(
                 onPressed: () async {
-                  await controller.signInWithGoogle();
+                  if (_isLoading) return;
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  try {
+                    await controller.signInWithGoogle();
 
-                  /// Navigate if user is set
-                  if (ref.read(authControllerProvider) != null) {
-                    if (context.mounted) {
-                      Navigator.pushReplacementNamed(context, '/tasks');
+                    /// If login successful, navigate to /tasks
+                    if (ref.read(authControllerProvider) != null) {
+                      if (context.mounted) {
+                        context.go('/tasks');
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Google Sign in failed')),
+                      );
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Google Sign-in Failed')),
-                    );
+                  } catch (e) {
+                    print(e);
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    }
                   }
                 },
+
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
                     color: theme.colorScheme.onSurface.withOpacity(0.2),

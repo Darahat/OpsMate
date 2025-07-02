@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opsmate/app/theme/app_colors.dart';
 import 'package:opsmate/features/tasks/presentation/widgets/micButtonWidget.dart';
 import 'package:opsmate/features/tasks/presentation/widgets/showAddTaskDialog.dart';
 
@@ -57,7 +56,7 @@ class _FloatingbuttonwidgetState extends ConsumerState<Floatingbuttonwidget> {
             curve: Curves.easeOutBack,
             child: FloatingActionButton(
               heroTag: 'addTask',
-              backgroundColor: AppColor.accent,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               onPressed: () {
                 setState(() => isFabExpanded = false);
                 showAddTaskDialog(context, ref);
@@ -78,7 +77,7 @@ class _FloatingbuttonwidgetState extends ConsumerState<Floatingbuttonwidget> {
                 isFabExpanded = !isFabExpanded;
               });
             },
-            backgroundColor: AppColor.primary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: AnimatedRotation(
               turns: isFabExpanded ? 0.125 : 0,
               duration: const Duration(milliseconds: 300),

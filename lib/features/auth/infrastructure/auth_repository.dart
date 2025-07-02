@@ -10,7 +10,7 @@ class AuthRepository {
   // final _box = Hive.box<UserModel>('authBox');
 
   /// this is SignUp model function which will call from controller
-  Future<UserModel?> signUp(String email, String name, String password) async {
+  Future<UserModel?> signUp(String email, String password, String name) async {
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,

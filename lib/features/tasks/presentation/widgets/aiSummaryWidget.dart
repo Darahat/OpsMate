@@ -26,9 +26,12 @@ class _AISummaryWidgetState extends ConsumerState<AISummaryWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "AI-Generated Summary",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
           ),
           const SizedBox(height: 8),
           if (tasks.isEmpty)
