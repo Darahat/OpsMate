@@ -19,8 +19,8 @@ class AuthController extends StateNotifier<UserModel?> {
   ///
   ///
   /// here just put the user to hive box and changing the state value
-  Future<void> signUp(String email, String password) async {
-    final user = await _repo.signUp(email, password);
+  Future<void> signUp(String email, String name, String password) async {
+    final user = await _repo.signUp(email, name, password);
     if (user != null) {
       _box.put('user', user);
       state = user;

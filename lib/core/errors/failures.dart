@@ -109,3 +109,11 @@ class PermissionFailure extends Failure {
   @override
   String toString() => 'Permission denied: $permission - $message';
 }
+
+
+// return Left(CacheFailure(message: 'Cache error'));
+// return Left(NetworkFailure(message: 'No internet'));
+// return Left(ValidationFailure(message: 'Invalid input'));
+// return Left(NotFoundFailure(resourceType: 'Task', identifier: '123'));
+// return Left(AuthFailure(message: 'Invalid credentials'));
+// return Left(PermissionFailure(permission: 'admin', message: 'Denied'));

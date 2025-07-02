@@ -9,6 +9,7 @@ class SignUpPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(authControllerProvider.notifier);
+    final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
 
@@ -19,6 +20,14 @@ class SignUpPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
@@ -37,11 +46,25 @@ class SignUpPage extends ConsumerWidget {
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed:
-                  () => controller.signUp(
-                    emailController.text.trim(),
-                    passwordController.text.trim(),
-                  ),
+              onPressed: () async {
+                await controller.signUp(
+                  nameController.text.trim(),
+                  emailController.text.trim(),
+                  passwordController.text.trim(),
+                );
+
+                /// Navigate if user is set
+                if (ref.read(authControllerProvider) != null) {
+                  if (context.mounted) {
+                    Navigator.pushReplacementNamed(context, '/tasks');
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sign Up Failed')),
+                  );
+                }
+              },
+
               child: const Text("Sign Up"),
             ),
             const SizedBox(height: 15),

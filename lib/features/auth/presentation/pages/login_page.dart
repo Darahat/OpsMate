@@ -78,11 +78,23 @@ class LoginPage extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed:
-                      () => controller.signIn(
-                        emailController.text.trim(),
-                        passwordController.text.trim(),
-                      ),
+                  onPressed: () async {
+                    controller.signIn(
+                      emailController.text.trim(),
+                      passwordController.text.trim(),
+                    );
+
+                    /// If login successful, navigate to /tasks
+                    if (ref.read(authControllerProvider) != null) {
+                      if (context.mounted) {
+                        Navigator.pushReplacementNamed(context, '/tasks');
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Login Failed')),
+                      );
+                    }
+                  },
                   child: const Text('Sign In'),
                 ),
               ),
@@ -112,7 +124,20 @@ class LoginPage extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               OutlinedButton(
-                onPressed: () => controller.signInWithGoogle(),
+                onPressed: () async {
+                  await controller.signInWithGoogle();
+
+                  /// Navigate if user is set
+                  if (ref.read(authControllerProvider) != null) {
+                    if (context.mounted) {
+                      Navigator.pushReplacementNamed(context, '/tasks');
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Google Sign-in Failed')),
+                    );
+                  }
+                },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
                     color: theme.colorScheme.onSurface.withOpacity(0.2),

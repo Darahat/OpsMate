@@ -104,3 +104,21 @@ class PermissionException extends AppException {
   @override
   String toString() => 'PermissionException for $permission: $message';
 }
+
+/// Custom Exceptions for out of box exception
+
+class CustomException extends AppException {
+  ///constructor calling only a variable message
+  const CustomException(super.message, [super.innerException]);
+}
+
+
+/// How you will call these exception
+
+// throw NetworkException('No internet connection');
+// throw ValidationException('Invalid email address');
+// throw AuthenticationException('Invalid credentials');
+// throw PermissionException('admin', 'You do not have admin rights');
+// throw NotFoundException('User', '1234');
+// throw CacheException(message: 'Failed to read from cache');
+// throw ServerException(message: 'Server error occurred');

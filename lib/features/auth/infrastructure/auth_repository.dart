@@ -10,10 +10,11 @@ class AuthRepository {
   // final _box = Hive.box<UserModel>('authBox');
 
   /// this is SignUp model function which will call from controller
-  Future<UserModel?> signUp(String email, String password) async {
+  Future<UserModel?> signUp(String email, String name, String password) async {
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
+      name: name,
     );
     return UserModel(uid: cred.user!.uid, email: cred.user!.email!);
   }
@@ -29,14 +30,24 @@ class AuthRepository {
 
   /// This is Signin model function for google signin which will call from controller
   Future<UserModel?> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    final googleAuth = await googleUser?.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    final cred = await _auth.signInWithCredential(credential);
-    return UserModel(uid: cred.user!.uid, email: cred.user!.email!);
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        /// User canceled the sign-in
+        return null;
+      }
+      final googleAuth = await googleUser?.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+      final cred = await _auth.signInWithCredential(credential);
+
+      return UserModel(uid: cred.user!.uid, email: cred.user!.email!);
+    } catch (e) {
+      print('Error during google sign-in: $e');
+      return null;
+    }
   }
 
   /// model function for logout which will call from controller
