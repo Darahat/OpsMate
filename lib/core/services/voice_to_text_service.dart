@@ -15,6 +15,29 @@ class VoiceToTextService {
   ///made the constructor
   VoiceToTextService(this.ref);
 
+  /// Helper function to process recognized text
+  String? processRecognizedText(String text) {
+    if (text.isEmpty) return null;
+    final lowerCaseText = text.toLowerCase();
+    bool hasAmPm =
+        lowerCaseText.contains('am') || lowerCaseText.contains('p.m.');
+
+    /// A simple regex to find numbers that look like time
+    RegExp timeRegex = RegExp(r'\b(\d{1,2})(:\d{2})?\b');
+    Iterable<Match> matches = timeRegex.allMatches(lowerCaseText);
+    if (matches.isNotEmpty) {
+      /// if the text has a time-like number but no "am" or "pm"
+      if (!hasAmPm &&
+          !lowerCaseText.contains('evening') &&
+          !lowerCaseText.contains('night')) {
+        /// Here you could have logic to ask the user for clarification
+        /// for Example, return a special string that your UI can catch
+        return "$text(clarification needed: AM or PM?)";
+      }
+    }
+    return text;
+  }
+
   /// its speech listener lisen to text
   Future<String?> listenForText() async {
     ref.read(isListeningProvider.notifier).state = true;
@@ -24,22 +47,26 @@ class VoiceToTextService {
       return null;
     }
 
-    String resultText = '';
+    String? processedText = '';
     await _speech.listen(
       onResult: (result) {
-        resultText = result.recognizedWords;
+        final resultText = result.recognizedWords;
+        processedText = processRecognizedText(resultText);
       },
-      listenFor: const Duration(seconds: 8),
-      pauseFor: const Duration(seconds: 3),
-      onSoundLevelChange: null,
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 6),
+      onSoundLevelChange: (level) {
+        // use for visual waveform feedback, optional
+        print("Sound level: $level");
+      },
     );
 
     /// Wait until listening ends
     await Future.doWhile(() async {
-      await Future.delayed(const Duration(microseconds: 200));
+      await Future.delayed(const Duration(microseconds: 500));
       return _speech.isListening;
     });
     ref.read(isListeningProvider.notifier).state = false;
-    return resultText.isNotEmpty ? resultText : null;
+    return processedText;
   }
 }

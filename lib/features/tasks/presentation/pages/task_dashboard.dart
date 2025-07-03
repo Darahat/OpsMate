@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:opsmate/app/theme/app_colors.dart';
 import 'package:opsmate/features/auth/provider/auth_providers.dart';
 import 'package:opsmate/features/tasks/application/task_controller.dart';
 import 'package:opsmate/features/tasks/presentation/widgets/aiSummaryWidget.dart';
@@ -19,15 +18,17 @@ class TaskDashboard extends ConsumerStatefulWidget {
 }
 
 class _TaskDashboardState extends ConsumerState<TaskDashboard> {
+  final textController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(taskLoadingProvider);
     final tasks = ref.watch(incompleteTasksProvider);
     final isRecording = ref.watch(isListeningProvider);
     final auth = ref.read(authControllerProvider.notifier);
-
+    String formattedDate = '';
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () async {
@@ -93,17 +94,79 @@ class _TaskDashboardState extends ConsumerState<TaskDashboard> {
                               itemCount: tasks.length,
                               itemBuilder: (context, index) {
                                 final task = tasks[index];
+
+                                if (task.taskCreationTime != null) {
+                                  formattedDate = DateFormat(
+                                    'dd MMM, yyyy – hh:mm a',
+                                  ).format(
+                                    DateTime.parse(task.taskCreationTime ?? ''),
+                                  );
+                                }
                                 return CheckboxListTile(
                                   title: Text(task.title ?? ''),
-                                  subtitle:
-                                      task.taskCreationTime != null
-                                          ? Text(task.taskCreationTime!)
-                                          : null,
+                                  subtitle: Text(formattedDate),
                                   value: task.isCompleted,
-                                  onChanged:
-                                      (val) => ref
-                                          .read(taskControllerProvider.notifier)
-                                          .toggleTask(task.tid!),
+                                  onChanged: (val) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext dialogContext) {
+                                        return AlertDialog(
+                                          title: const Text('Take Action'),
+                                          content: TextField(
+                                            controller: textController,
+                                            decoration: const InputDecoration(
+                                              hintText: "Task Title",
+                                            ),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                ref
+                                                    .read(
+                                                      taskControllerProvider
+                                                          .notifier,
+                                                    )
+                                                    .removeTask(task.tid!);
+                                              },
+                                              child: const Text('Done'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                ref
+                                                    .read(
+                                                      taskControllerProvider
+                                                          .notifier,
+                                                    )
+                                                    .toggleTask(task.tid!);
+                                              },
+                                              child: const Text('Delete'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                if (textController
+                                                    .text
+                                                    .isNotEmpty) {
+                                                  ref
+                                                      .read(
+                                                        taskControllerProvider
+                                                            .notifier,
+                                                      )
+                                                      .editTask(
+                                                        task.tid!,
+                                                        textController.text,
+                                                      );
+                                                  Navigator.of(
+                                                    dialogContext,
+                                                  ).pop();
+                                                }
+                                              },
+                                              child: const Text('Save'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
                                 );
                               },
                             ),

@@ -20,7 +20,7 @@ class _AISummaryWidgetState extends ConsumerState<AISummaryWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F1FF),
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
